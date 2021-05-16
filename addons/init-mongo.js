@@ -1,13 +1,15 @@
 function seed(dbName, user, password) {
   db = db.getSiblingDB(dbName);
   db.createUser({
-    user: user,
-    pwd: password,
-    roles: [{ role: 'readWrite', db: dbName }],
+    user: "admin",
+    pwd: "changeit",
+    roles: [{ role: 'readWrite', db: "testdb" }],
   });
 
   db.createCollection('api_keys');
   db.createCollection('roles');
+  db.createCollection('sites');
+  db.createCollection('');
 
   db.api_keys.insert({
     metadata: 'To be used by the xyz vendor',
@@ -24,7 +26,15 @@ function seed(dbName, user, password) {
     { code: 'EDITOR', status: true, createdAt: new Date(), updatedAt: new Date() },
     { code: 'ADMIN', status: true, createdAt: new Date(), updatedAt: new Date() },
   ]);
+
+  db.sites.insertMany([
+    { siteName: 'DC', status: true, createdAt: new Date(), updatedAt: new Date() },
+    { siteName: 'THEQOO', status: true, createdAt: new Date(), updatedAt: new Date() },
+    { siteName: 'NAVER', status: true, createdAt: new Date(), updatedAt: new Date() },
+    { siteName: 'YOUTUBE', status: true, createdAt: new Date(), updatedAt: new Date() },
+  ])
+
 }
 
-seed('afteracademy-blog-db', 'afteracademy-blog-db-user', 'changeit');
-seed('afteracademy-blog-test-db', 'afteracademy-blog-test-db-user', 'changeit');
+seed('testdb', 'admin', 'changeit');
+seed('realdb', 'admin', 'changeit');
