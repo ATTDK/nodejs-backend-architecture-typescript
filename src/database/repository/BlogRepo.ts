@@ -13,7 +13,7 @@ export default class BlogRepo {
     blog.createdAt = now;
     blog.updatedAt = now;
     const createdBlog = await BlogModel.create(blog);
-    return createdBlog.toObject();
+    return createdBlog;
   }
 
   public static update(blog: Blog): Promise<any> {
@@ -70,7 +70,7 @@ export default class BlogRepo {
     tag: string,
     pageNumber: number,
     limit: number,
-  ): Promise<Blog[]> {
+  ): Promise<Blog> {
     return BlogModel.find({ tags: tag, status: true, isPublished: true })
       .skip(limit * (pageNumber - 1))
       .limit(limit)
@@ -80,7 +80,7 @@ export default class BlogRepo {
       .exec();
   }
 
-  public static findAllPublishedForAuthor(user: User): Promise<Blog[]> {
+  public static findAllPublishedForAuthor(user: User): Promise<Blog> {
     return BlogModel.find({ author: user, status: true, isPublished: true })
       .populate('author', this.AUTHOR_DETAIL)
       .sort({ updatedAt: -1 })
@@ -88,31 +88,31 @@ export default class BlogRepo {
       .exec();
   }
 
-  public static findAllDrafts(): Promise<Blog[]> {
+  public static findAllDrafts(): Promise<Blog> {
     return this.findDetailedBlogs({ isDraft: true, status: true });
   }
 
-  public static findAllSubmissions(): Promise<Blog[]> {
+  public static findAllSubmissions(): Promise<Blog> {
     return this.findDetailedBlogs({ isSubmitted: true, status: true });
   }
 
-  public static findAllPublished(): Promise<Blog[]> {
+  public static findAllPublished(): Promise<Blog> {
     return this.findDetailedBlogs({ isPublished: true, status: true });
   }
 
-  public static findAllSubmissionsForWriter(user: User): Promise<Blog[]> {
+  public static findAllSubmissionsForWriter(user: User): Promise<Blog> {
     return this.findDetailedBlogs({ author: user, status: true, isSubmitted: true });
   }
 
-  public static findAllPublishedForWriter(user: User): Promise<Blog[]> {
+  public static findAllPublishedForWriter(user: User): Promise<Blog> {
     return this.findDetailedBlogs({ author: user, status: true, isPublished: true });
   }
 
-  public static findAllDraftsForWriter(user: User): Promise<Blog[]> {
+  public static findAllDraftsForWriter(user: User): Promise<Blog> {
     return this.findDetailedBlogs({ author: user, status: true, isDraft: true });
   }
 
-  private static findDetailedBlogs(query: Record<string, unknown>): Promise<Blog[]> {
+  private static findDetailedBlogs(query: Record<string, unknown>): Promise<Blog> {
     return BlogModel.find(query)
       .select(this.BLOG_INFO_ADDITIONAL)
       .populate('author', this.AUTHOR_DETAIL)
@@ -123,7 +123,7 @@ export default class BlogRepo {
       .exec();
   }
 
-  public static findLatestBlogs(pageNumber: number, limit: number): Promise<Blog[]> {
+  public static findLatestBlogs(pageNumber: number, limit: number): Promise<Blog> {
     return BlogModel.find({ status: true, isPublished: true })
       .skip(limit * (pageNumber - 1))
       .limit(limit)
@@ -133,7 +133,7 @@ export default class BlogRepo {
       .exec();
   }
 
-  public static searchSimilarBlogs(blog: Blog, limit: number): Promise<Blog[]> {
+  public static searchSimilarBlogs(blog: Blog, limit: number): Promise<Blog> {
     return BlogModel.find(
       {
         $text: { $search: blog.title, $caseSensitive: false },
@@ -153,7 +153,7 @@ export default class BlogRepo {
       .exec();
   }
 
-  public static search(query: string, limit: number): Promise<Blog[]> {
+  public static search(query: string, limit: number): Promise<Blog> {
     return BlogModel.find(
       {
         $text: { $search: query, $caseSensitive: false },
@@ -171,7 +171,7 @@ export default class BlogRepo {
       .exec();
   }
 
-  public static searchLike(query: string, limit: number): Promise<Blog[]> {
+  public static searchLike(query: string, limit: number): Promise<Blog> {
     return BlogModel.find({
       title: { $regex: `.*${query}.*`, $options: 'i' },
       status: true,

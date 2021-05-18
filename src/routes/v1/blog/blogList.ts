@@ -21,7 +21,7 @@ router.get(
       parseInt(req.query.pageItemCount as string),
     );
 
-    if (!blogs || blogs.length < 1) throw new NoDataError();
+    if (!blogs || blogs.title.length < 1 ) throw new NoDataError();
 
     return new SuccessResponse('success', blogs).send(res);
   }),
@@ -35,7 +35,7 @@ router.get(
       _id: new Types.ObjectId(req.params.id),
     } as User);
 
-    if (!blogs || blogs.length < 1) throw new NoDataError();
+    if (!blogs || blogs.title.length < 1 ) throw new NoDataError();
 
     return new SuccessResponse('success', blogs).send(res);
   }),
@@ -50,7 +50,7 @@ router.get(
       parseInt(req.query.pageItemCount as string),
     );
 
-    if (!blogs || blogs.length < 1) throw new NoDataError();
+    if (!blogs || blogs.title.length < 1 ) throw new NoDataError();
 
     return new SuccessResponse('success', blogs).send(res);
   }),
@@ -64,7 +64,7 @@ router.get(
     if (!blog || !blog.isPublished) throw new BadRequestError('Blog is not available');
 
     const blogs = await BlogRepo.searchSimilarBlogs(blog, 6);
-    if (!blogs || blogs.length < 1) throw new NoDataError();
+    if (!blogs || blogs.title.length < 1 ) throw new NoDataError();
 
     return new SuccessResponse('success', blogs).send(res);
   }),

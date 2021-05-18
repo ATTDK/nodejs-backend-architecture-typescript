@@ -32,7 +32,7 @@ export default class ContentRepo {
     const createdContent = await ContentModel.create(content);
     content.sites = [site._id];
     content.createdAt = now;
-    return { content: createdContent.toObject() };
+    return { content: createdContent };
   }
 
   public static async update(
