@@ -4,57 +4,69 @@ export const DOCUMENT_NAME = 'Content';
 export const COLLECTION_NAME = 'contents';
 
 export default interface Content extends Document {
-  title : string;
-  content : string;
-  contentNumber : Number;
-  createdAt?: Date;
-  sites : Site[];
-  haveComment : Boolean;
-  comment? : string;
-  views : Number;
-  like : Number;
+  title? : string;
+  views? : string;
+  likes? : string;
+  content? : string[];
+  commentCount? : string;
+  link? : string;
+  writer? : string;
+  created?: string;
+  sites? : string;
+  comment? : string[];
 }
 
 const schema = new Schema(
   {
     title: {
       type: Schema.Types.String,
-      required: true,
-      trim : true,
-    },
-    content: {
-      type: Schema.Types.String,
-      required: true,
-      trim : true,
-    },
-    contentNumber: {
-      type: Schema.Types.Number,
-      required: true,
-      trim : true,
-    },
-    createdAt: {
-      type: Date,
-      required: true,
-      select: false,
-    },
-    haveComment: {
-      type: Schema.Types.String,
-      required: true,
-    },
-    comment: {
-      type: Schema.Types.String,
-      required: true,
-      select: false,
+      required: false,
       trim : true,
     },
     views: {
-      type: Schema.Types.Number,
-      required: true,
+      type: Schema.Types.String,
+      required: false,
       trim : true,
     },
-    like: {
-      type: Schema.Types.Number,
-      required: true,
+    likes: {
+      type: Schema.Types.String,
+      required: false,
+      trim : true,
+    },
+    content: {
+      type: [Schema.Types.String],
+      required: false,
+      trim : true,
+    },
+    commentCount: {
+      type: Schema.Types.String,
+      required: false,
+      trim : true,
+    },
+    link: {
+      type: Schema.Types.String,
+      required: false,
+      trim : true,
+    },
+    writer : {
+      type: Schema.Types.String,
+      required: false,
+      trim : true,
+    },
+    created: {
+      type: Schema.Types.String,
+      required: false,
+      select: false,
+    },
+    sites: {
+      type: Schema.Types.String,
+      required: false,
+      trim : true,
+    },
+    comment: {
+      type: [Schema.Types.String],
+      required: false,
+      select: false,
       trim : true,
     },
   },

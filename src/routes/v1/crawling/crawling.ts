@@ -10,12 +10,12 @@ import { SiteCode } from '../../../database/model/Site';
 import ContentRepo from '../../../database/repository/ContentRepo';
 import Content from '../../../database/model/Content';
 import Comment from '../../../database/model/Comment';
-import { find } from 'lodash';
+import { delay, find } from 'lodash';
 import { format } from 'morgan';
 const router = express.Router();
 const tqUrl = 'https://theqoo.net/index.php?mid=total&filter_mode=normal&s_module_srl=1941552&page=300';
 const dcUrl = 'https://gall.dcinside.com/board/lists/?id=mkyunghoon';
-const dogUrl = 'https://www.dogdrip.net/index.php?mid=ib&page=1';
+const dogUrl = 'https://www.dogdrip.net/index.php?mid=ib&page=';
 const tqBaseUrl = 'https://theqoo.net/'
 const dcBaseUrl = 'https://gall.dcinside.com/'
 const dogBaseUrl = 'https://www.dogdrip.net/'
@@ -110,77 +110,56 @@ router.get(
 router.get(
   '/crawlingDogdrip',
   asyncHandler(async (req, res)=>{
-    for(var i=1; i< 30000; i++){
+
+    for(var i=1; i<= 20; i++){
       await boardCrawl(dogUrl+i)
+      console.log("DKDKDK don : ",i)
+      if(i % 5 == 0){
+        delay(boardCrawl, 500)
+      }
     }
   })
 );
 
-router.get(
-  '/crawlingDogdri1p',
-  asyncHandler(async (req, res) => {
-    request.get(dogUrl,(re_err, re_res) => {
-      let $ = load(re_res.body,{xmlMode : true});
-      var result = [];
-      console.log('Dogdrip table')
-      try{
-        $('table').find('tbody').find('tr').each(function (index, elem){
-          var title, views, likes, commentCount, link, writer
-          
-          title = $(this).find('td.title>span>a>span.ed.title-link').text().trim()
-          views = $(this).find('td.readNum').text().trim()
-          likes = $(this).find('td.ed.voteNum.text-primary').text().trim()
-          commentCount = $(this).find('td.title>span>a.ed.link-reset>span.ed.text-primary').text().trim()
-          link = $(this).find('td.title>span>a').attr('href')
-          writer = $(this).find('td.author').find('a').text().trim()
-          result[index]={
-            title,
-            views,
-            likes,
-            commentCount,
-            link,
-            writer
-          };
-          console.log(
-            "Title : " + title
-            +"\nViews : " + views
-            +"\nLikes : " + likes
-            +"\nComment Count : " + commentCount
-            +"\nLink : " + link
-            +"\nWriter : " + writer
-          )
-          contentParse(EmptyUrl+link)
-        })
-      }catch (re_err){
-        throw new BadRequestError('Bad Request _ crawling');
-      }
-    });
-  })
-);
 
 async function boardCrawl(url:string) {
   try{
     request.get(url,(err,res) => {
       let $ = load(res.body,{xmlMode : true});
+      var result: { title: string; views: string; likes: string; commentCount: string; link: string; writer: string; created : string; }[] = [];
       try{
-        $('table').find('tbody').find('tr').each(function (index, elem){
-          var title, views, likes, commentCount, link, writer
-          
-          title = $(this).find('td.title>span>a>span.ed.title-link').text().trim()
-          views = $(this).find('td.readNum').text().trim()
-          likes = $(this).find('td.ed.voteNum.text-primary').text().trim()
-          commentCount = $(this).find('td.title>span>a.ed.link-reset>span.ed.text-primary').text().trim()
-          link = $(this).find('td.title>span>a').attr('href')
-          writer = $(this).find('td.author').find('a').text().trim()
-          console.log(
-            "Title : " + title
-            +"\nViews : " + views
-            +"\nLikes : " + likes
-            +"\nComment Count : " + commentCount
-            +"\nLink : " + link
-            +"\nWriter : " + writer
-          )
-          contentParse(EmptyUrl+link)
+        $('table').find('tbody').find('tr').each(async function (index, elem){
+          result[index]={
+          title : $(this).find('td.title>span>a>span.ed.title-link').text().trim(),
+          views : $(this).find('td.readNum').text().trim(),
+          likes : $(this).find('td.ed.voteNum.text-primary').text().trim(),
+          commentCount : $(this).find('td.title>span>a.ed.link-reset>span.ed.text-primary').text().trim(),
+          link : $(this).find('td.title>span>a').attr('href')!.toString(),
+          writer : $(this).find('td.author').find('a').text().trim(),
+          created : $(this).find('td.time').text().trim(),
+          } 
+          const Content = await ContentRepo.findContentAllDataById(result[index].link);
+          if (Content) {
+              Content.views = result[index].views;
+              Content.likes = result[index].likes;
+              Content.commentCount = result[index].commentCount;
+              Content.created = result[index].created;
+              await ContentRepo.update(Content)
+              console.log("DKDK!! update ")
+          } else {
+            const createdContent = await ContentRepo.create({
+              title : result[index].title,
+              views : result[index].views,
+              likes : result[index].likes,
+              commentCount : result[index].commentCount,
+              link : result[index].link,
+              writer : result[index].writer,
+              created : result[index].created,
+              sites : "dogdrip",
+            } as Content)
+            console.log("DKDK!! create ")
+          }
+          await contentParse(EmptyUrl+result[index].link)
         })
       }catch{
         throw new BadRequestError('BadResponse _ boardCrawling');
@@ -193,13 +172,62 @@ async function boardCrawl(url:string) {
 
 async function contentParse(url:string) {
   try{
-    request.get(url,(req,res)=>{
-      let $ = load(res.body)
+    request.get(url, (req,res)=>{
+      let $ = load(res.body,{xmlMode : true})
+      var comment : [string];
+      var result: { content?: string; comment? : string;  }[] = [];
       try{
-        console.log(
-          ""
-          +$('div.ed.comment-item.clearfix').find('.xe_content').text().trim()
-        )
+        $('div.ed.comment-list').find('.xe_content').each(async function (index,element){
+          if($(this).text().trim().length>0){
+            const Content = await ContentRepo.findContentAllDataById(url)
+            if (Content){
+              if(Content.comment){
+                console.log('콘텐트 && 코멘트')
+                Content.comment = ["dm?"]
+                await ContentRepo.update(Content)
+              }else if (!Content.comment){
+                console.log('콘텐트 && !코멘트')
+                Content.comment = [""]
+                try{
+                  Content.comment.push($(this).text().trim())
+                  await ContentRepo.update(Content)
+                }catch{
+                  console.log("FUCK")
+                }
+                
+                // Content.comment[index] = $(this).text().trim()
+              }
+            }else {
+              console.log('!콘텐트')
+            }
+          }
+        })
+
+        /*if(true){
+          //댓글 추가
+         
+          //내용 추가
+          
+          $('div.ed.clearfix.margin-vertical-large').find('.xe_content').each(function (index,ele){
+           if(ele){
+            result[index]={
+              content : $(this).text().trim()
+            }
+           }
+          })
+          await ContentRepo.update(Content)
+          console.log("DKDK!! update "+Content)
+        } else {
+          console.log("DKDK!! content cannot")
+            // $('div.ed.comment-list').find('.xe_content').each(function (index,element){
+            //console.log(
+            //url + 
+            //" comment : "
+            //+$(this).text().trim()
+            //+"index : ",index
+            //)
+            //})
+        }*/
       }catch(ere){
         console.log('comment error',ere)
       }
@@ -210,81 +238,3 @@ async function contentParse(url:string) {
 }
 
 export default router
-
-
-export const updateTop: RequestHandler = async (req, res) => {
-  try {  
-      const crawl = (url : string) =>
-          new Promise<string>((resolve, reject) => {
-              request.get({
-                      url: '',
-                      jar: true
-                  }, (err, res) => {
-                  if (err) reject(err);
-                  resolve(res.body);
-              });
-      });
-      const result = [];
-      for(var i=0; i<3000; i++){
-        result[i] = await crawl(dogUrl+i);
-      }
-
-     // const result = awa/ crawl();
-      const extract = (html: string, j:number) => {
-          if (html === '') return [];
-          const $ = load(html);
-          const crawledRealtimeKeywords = $(`#menu2093_obj18 > div._fnctWrap._articleTable > form > table > tbody > tr:nth-child(${j}) > td._artclTdTitle > a`,);
-          const keywords = $(crawledRealtimeKeywords)
-            .map(
-              (i, ele) => {
-                  return {content: $(ele).text(),
-                  link: $(ele).attr()};
-              },
-            )
-            .get();
-          return keywords;
-      };
-      const postedAt = (html: string, j:number) => {
-          if (html === '') return [];
-          const $ = load(html);
-          const crawledRealtimeKeywords = $(`#menu2093_obj18 > div._fnctWrap._articleTable > form > table > tbody > tr:nth-child(${j}) > td._artclTdRdate`,);
-          const keywords: string[] = $(crawledRealtimeKeywords)
-            .map(
-              (i, ele): string => {
-                  return $(ele).text();
-              },
-            )
-            .get();
-          return keywords;
-      };
-      let top: any[] = [];
-      for (let i: number = 1; i <= 10; i++) {
-          let res = extract(result, i)[0];
-          let content: string = res.content.replace('\n\t\t\t\t\t\t\t\t\t','');
-          content = content.replace('\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t','');
-          content = content.replace('\n\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t','');
-          let link: string = res.link.href;
-          let posted_at: string = postedAt(result, i)[0];
-          let elem: {
-              content: string,
-              posted_at: string,
-              link: string
-          } = {
-              content,
-              posted_at,
-              link 
-          }
-          top.push(elem);
-          let topRepository = await getRepository(inha_plaza);
-          let topUpdate = await topRepository.findOne(i);
-          topUpdate.title = content;
-          topUpdate.link = link;
-          topUpdate.posted_at = new Date(posted_at);
-          await topRepository.save(topUpdate);
-      }
-      console.log(top)
-      res.status(201).json(response.success(message.READ_SUCCESS, top));
-  } catch(err) {
-      console.log(err)
-  }
-};
