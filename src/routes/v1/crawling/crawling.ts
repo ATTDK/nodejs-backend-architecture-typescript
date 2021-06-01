@@ -214,7 +214,7 @@ export default router
 
 export const updateTop: RequestHandler = async (req, res) => {
   try {  
-      const crawl = () =>
+      const crawl = (url : string) =>
           new Promise<string>((resolve, reject) => {
               request.get({
                       url: '',
@@ -226,10 +226,10 @@ export const updateTop: RequestHandler = async (req, res) => {
       });
       const result = [];
       for(var i=0; i<3000; i++){
-        result[i] = await crawl();
+        result[i] = await crawl(dogUrl+i);
       }
 
-      const result = await crawl()/;
+     // const result = awa/ crawl();
       const extract = (html: string, j:number) => {
           if (html === '') return [];
           const $ = load(html);
