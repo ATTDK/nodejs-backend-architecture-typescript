@@ -7,13 +7,13 @@ export default interface Content extends Document {
   title? : string;
   views? : string;
   likes? : string;
-  content? : string[];
+  content? : string;
   commentCount? : string;
-  link? : string;
+  link? : string | null | undefined;
   writer? : string;
   created?: string;
   sites? : string;
-  comment? : string[];
+  comment? : string;
 }
 
 const schema = new Schema(
@@ -34,7 +34,7 @@ const schema = new Schema(
       trim : true,
     },
     content: {
-      type: [Schema.Types.String],
+      type: Schema.Types.String,
       required: false,
       trim : true,
     },
@@ -64,7 +64,7 @@ const schema = new Schema(
       trim : true,
     },
     comment: {
-      type: [Schema.Types.String],
+      type: Schema.Types.String,
       required: false,
       select: false,
       trim : true,

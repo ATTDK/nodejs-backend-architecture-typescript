@@ -13,23 +13,35 @@ import Comment from '../../../database/model/Comment';
 import { delay, find } from 'lodash';
 import { format } from 'morgan';
 const router = express.Router();
-const tqUrl = 'https://theqoo.net/index.php?mid=total&filter_mode=normal&s_module_srl=1941552&page=300';
+const tqUrl = 'https://theqoo.net/index.php?mid=ktalk&filter_mode=normal&page=';
 const dcUrl = 'https://gall.dcinside.com/board/lists/?id=mkyunghoon';
 const dogUrl = 'https://www.dogdrip.net/index.php?mid=ib&page=';
-const tqBaseUrl = 'https://theqoo.net/'
+const tqBaseUrl = 'https://theqoo.net'
 const dcBaseUrl = 'https://gall.dcinside.com/'
 const dogBaseUrl = 'https://www.dogdrip.net/'
 const EmptyUrl = ''
 let $href = [];
+const timer = (ms: number | undefined) => new Promise(res=>setTimeout(res,ms))
 
 router.get(
   '/crawlingTheqoo',
+  asyncHandler(async (req, res)=>{
+    for(var i=1; i<= 3000; i++){
+      await boardCrawl_theqoo(tqUrl+i)
+      if (i%5 == 0){
+        await timer(1500)
+      }
+      console.log("DKDKDK don : ",i)
+    }
+  })
+);
+
+router.get(
+  '/crawlingTheqoo11',
   asyncHandler(async (req, res) => {
     request.get(tqUrl,(re_err, re_res) => {
       let $ = load(re_res.body);
       let link;
-      console.log('theqoo')
-
       try{
         $('table').find('tbody').find('tr').each(function (index, elem){
           // $('table>tbody>tr>td>a').each(function (index, elem){
@@ -110,19 +122,64 @@ router.get(
 router.get(
   '/crawlingDogdrip',
   asyncHandler(async (req, res)=>{
-
-    for(var i=1; i<= 20; i++){
-      await boardCrawl(dogUrl+i)
-      console.log("DKDKDK don : ",i)
-      if(i % 5 == 0){
-        delay(boardCrawl, 500)
+    for(var i=1; i<= 300; i++){
+      await boardCrawl_dog(dogUrl+i)
+      if (i%5 == 0){
+        await timer(1500)
       }
+      console.log("DKDKDK don : ",i)
     }
   })
 );
 
 
-async function boardCrawl(url:string) {
+async function boardCrawl_theqoo(url:string) {
+  try{
+    request.get(url,(err,res) => {
+      let $ = load(res.body,{xmlMode : true});
+      var result: { title: string; views: string; commentCount: string; link: string; created : string; }[] = [];
+      try{
+        $('table').find('tbody').find('tr').each(async function (index, elem){
+          if (index>4){
+            result[index]={
+              title : $(this).find('td.title>a>span').text().trim(),
+              views : $(this).find('td.m_no').text().trim(),
+              commentCount : $(this).find('td.title>a.replyNum').text().trim(),
+              link : $(this).find('td.title>a').attr('href')!.toString(),
+              created : $(this).find('td.time').text().trim(),
+              } 
+              const Content = await ContentRepo.findContentAllDataById(result[index].link);
+              if (Content) {
+                  Content.views = result[index].views;
+                  Content.commentCount = result[index].commentCount;
+                  Content.created = result[index].created;
+                  await ContentRepo.update(Content)
+                  console.log("DKDK!! update ")
+              } else {
+                const createdContent = await ContentRepo.create({
+                  title : result[index].title,
+                  views : result[index].views,
+                  commentCount : result[index].commentCount,
+                  link : tqBaseUrl+result[index].link,
+                  created : result[index].created,
+                  sites : "theqoo",
+                } as Content)
+                console.log("DKDK!! create ")
+              }
+          }
+          console.log("url is : ",tqBaseUrl + result[index].link)
+          await contentParse_theqoo(tqBaseUrl+result[index].link)
+        })
+      }catch{
+        throw new BadRequestError('BadResponse _ boardCrawling');
+      }
+    })
+  }catch{
+    throw new BadRequestError('BadResponse _ boardCrawling');
+  }
+}
+
+async function boardCrawl_dog(url:string) {
   try{
     request.get(url,(err,res) => {
       let $ = load(res.body,{xmlMode : true});
@@ -159,7 +216,7 @@ async function boardCrawl(url:string) {
             } as Content)
             console.log("DKDK!! create ")
           }
-          await contentParse(EmptyUrl+result[index].link)
+          await contentParse_dog(EmptyUrl+result[index].link)
         })
       }catch{
         throw new BadRequestError('BadResponse _ boardCrawling');
@@ -170,64 +227,99 @@ async function boardCrawl(url:string) {
   }
 }
 
-async function contentParse(url:string) {
+async function contentParse_theqoo(url:string) {
+  try{
+    request.get(url, (req,res)=>{
+      let $ = load(res.body,{xmlMode : true})
+      var content : [string];
+      var comment : [string];
+      var result: { content?: string; comment? : string;  }[] = [];
+      try{
+        //본문 추가
+        $('article').find('.xe_content').each(async function (index,element){
+          if($(this).text().trim().length>0){
+            const Content = await ContentRepo.findContentAllDataById(url)
+            if (Content){
+              try{
+                Content.content += (+"\n"+$(this).text().trim())
+                await ContentRepo.update(Content)
+              }catch{
+                console.log("FUCK")
+              }
+            }else {
+              console.log('본문 !콘텐트')
+            }
+
+          }
+        })
+        //댓글 추가
+        $('div.cmtposition>ul.fdb_lst_ul').find('.xe_content').each(async function (index, ele) {
+          if($(this).text().trim().length>0){
+            console.log("comment "+$(this).text().trim())
+            const Content = await ContentRepo.findContentAllDataById(url)
+            if( Content ){
+              try{
+                Content.comment += (+"\n"+$(this).text().trim())
+                await ContentRepo.update(Content)
+              }catch{
+                console.log("FUCK")
+              }
+            } else {
+              console.log('댓글 !콘텐트')
+            }
+          }
+        })
+      }catch(ere){
+        console.log('comment error',ere)
+      }
+    })
+  }catch(err){
+    console.log(err)
+  }
+}
+
+async function contentParse_dog(url:string) {
   try{
     request.get(url, (req,res)=>{
       let $ = load(res.body,{xmlMode : true})
       var comment : [string];
       var result: { content?: string; comment? : string;  }[] = [];
       try{
-        $('div.ed.comment-list').find('.xe_content').each(async function (index,element){
+        //본문
+        $('div.ed.clearfix.margin-vertical-large').find('.xe_content').each(async function (index,element){
           if($(this).text().trim().length>0){
             const Content = await ContentRepo.findContentAllDataById(url)
             if (Content){
-              if(Content.comment){
-                console.log('콘텐트 && 코멘트')
-                Content.comment = ["dm?"]
+              try{
+                Content.content += ($(this).text().trim())
                 await ContentRepo.update(Content)
-              }else if (!Content.comment){
-                console.log('콘텐트 && !코멘트')
-                Content.comment = [""]
-                try{
-                  Content.comment.push($(this).text().trim())
-                  await ContentRepo.update(Content)
-                }catch{
-                  console.log("FUCK")
-                }
-                
-                // Content.comment[index] = $(this).text().trim()
+              }catch{
+                console.log("FUCK 콘텐트")
               }
             }else {
-              console.log('!콘텐트')
+              console.log('!콘텐트 콘텐트')
             }
           }
         })
 
-        /*if(true){
-          //댓글 추가
-         
-          //내용 추가
-          
-          $('div.ed.clearfix.margin-vertical-large').find('.xe_content').each(function (index,ele){
-           if(ele){
-            result[index]={
-              content : $(this).text().trim()
+
+        //댓글
+        $('div.ed.comment-list').find('.xe_content').each(async function (index,element){
+          if($(this).text().trim().length>0){
+            const Content = await ContentRepo.findContentAllDataById(url)
+            if (Content){
+              try{
+                Content.comment += ($(this).text().trim())
+                await ContentRepo.update(Content)
+              }catch{
+                console.log("FUCK 코멘트")
+              }
+            }else {
+              console.log('!콘텐트 코멘트')
             }
-           }
-          })
-          await ContentRepo.update(Content)
-          console.log("DKDK!! update "+Content)
-        } else {
-          console.log("DKDK!! content cannot")
-            // $('div.ed.comment-list').find('.xe_content').each(function (index,element){
-            //console.log(
-            //url + 
-            //" comment : "
-            //+$(this).text().trim()
-            //+"index : ",index
-            //)
-            //})
-        }*/
+          }
+        })
+        
       }catch(ere){
         console.log('comment error',ere)
       }

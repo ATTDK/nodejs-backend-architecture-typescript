@@ -20,7 +20,7 @@ export default class ContentRepo {
       .exec();
   }
 
-  public static findContentAllDataById(link: string): Promise<Content | null> {
+  public static findContentAllDataById(link: string | null | undefined): Promise<Content | null> {
     return ContentModel.findOne({ link: link })
       .select(this.CONTENT_ALL_DATA)
       .lean<Content>()
