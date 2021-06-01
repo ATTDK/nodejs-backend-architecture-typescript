@@ -16,23 +16,11 @@ export default class ContentRepo {
       .exec();
   }
 
-
-  public static async create(
-    content: Content,
-    siteCode: string,
-  ): Promise<{ content: Content }> {
+  public static async create(content: Content): Promise< Content > {
     const now = new Date();
-
-    const site = await SiteModel.findOne({ code: siteCode })
-      .select('+email +password')
-      .lean<Site>()
-      .exec();
-    if (!site) throw new InternalError('Role must be defined');
-
-    const createdContent = await ContentModel.create(content);
-    content.sites = [site._id];
     content.createdAt = now;
-    return { content: createdContent };
+    const createdContent = await ContentModel.create(content);
+    return createdContent;
   }
 
   public static async update(

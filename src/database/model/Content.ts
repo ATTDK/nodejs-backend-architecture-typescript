@@ -20,27 +20,20 @@ const schema = new Schema(
     title: {
       type: Schema.Types.String,
       required: true,
+      trim : true,
     },
     content: {
       type: Schema.Types.String,
       required: true,
+      trim : true,
     },
     contentNumber: {
       type: Schema.Types.Number,
       required: true,
+      trim : true,
     },
     createdAt: {
       type: Date,
-      required: true,
-      select: false,
-    },
-    roles: {
-      type: [
-        {
-          type: Schema.Types.ObjectId,
-          ref: 'Site',
-        },
-      ],
       required: true,
       select: false,
     },
@@ -52,14 +45,17 @@ const schema = new Schema(
       type: Schema.Types.String,
       required: true,
       select: false,
+      trim : true,
     },
     views: {
       type: Schema.Types.Number,
       required: true,
+      trim : true,
     },
     like: {
       type: Schema.Types.Number,
       required: true,
+      trim : true,
     },
   },
   {

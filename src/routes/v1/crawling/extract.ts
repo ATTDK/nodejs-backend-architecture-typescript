@@ -4,7 +4,7 @@ import { load } from 'cheerio';
   if (html === '') return [];
   const $ = load(html);
   const crawledRealtimeKeywords = $(
-    '.ah_roll_area.PM_CL_realtimeKeyword_rolling ul > li span.ah_k',
+    'td.title',
   );
   const keywords: string[] = $(crawledRealtimeKeywords)
     .map(
