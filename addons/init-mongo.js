@@ -8,7 +8,7 @@ function seed(dbName, user, password) {
 
   db.createCollection('api_keys');
   db.createCollection('roles');
-  db.createCollection('sites');
+  db.createCollection('contents');
   db.createCollection('');
 
   db.api_keys.insert({

@@ -12,7 +12,6 @@ logs
 node_modules
 
 # ignore key
-*.pem
 
 # Ignore built files
 build
@@ -21,5 +20,4 @@ build
 coverage
 
 # Environment varibles
-*.env
 *.env.*
