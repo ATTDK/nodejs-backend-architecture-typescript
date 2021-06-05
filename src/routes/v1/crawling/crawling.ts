@@ -3,19 +3,25 @@ import express, { RequestHandler } from 'express';
 import asyncHandler from '../../../helpers/asyncHandler';
 import { BadRequestError } from '../../../core/ApiError';
 import { SuccessResponse } from '../../../core/ApiResponse';
-import { resolve } from 'path';
 import { load } from 'cheerio';
 import axios from 'axios';
-import { SiteCode } from '../../../database/model/Site';
 import ContentRepo from '../../../database/repository/ContentRepo';
 import Content from '../../../database/model/Content';
-import Comment from '../../../database/model/Comment';
-import { delay, find } from 'lodash';
-import { format } from 'morgan';
+import { start } from 'repl';
+import '../../../database';
+
 const router = express.Router();
 const tqUrl = 'https://theqoo.net/index.php?mid=ktalk&filter_mode=normal&page=';
+const tqUrl1 = 'https://theqoo.net/index.php?mid=kstar&filter_mode=normal&page='; // 국내유명인
+const tqUrl2 = 'https://theqoo.net/index.php?mid=ktalk&filter_mode=normal&page='; //케이돌토크
+const tqUrl3 = 'https://theqoo.net/index.php?mid=kdolboys&filter_mode=normal&page='; // 케이돌보이즈
+const tqUrl4 = 'https://theqoo.net/index.php?mid=kdolgirls&filter_mode=normal&page='; // 케이돌걸즈
 const dcUrl = 'https://gall.dcinside.com/board/lists/?id=mkyunghoon';
 const dogUrl = 'https://www.dogdrip.net/index.php?mid=ib&page=';
+const dogUrl1 = 'https://www.dogdrip.net/index.php?mid=movie&page='; // 영상
+const dogUrl2 = 'https://www.dogdrip.net/index.php?mid=music&page='; // 음악
+const dogUrl3 = 'https://www.dogdrip.net/index.php?mid=girlgroup&page='; // 걸그룹
+const dogUrl4 = 'https://www.dogdrip.net/index.php?mid=ib&page='; // 인방
 const tqBaseUrl = 'https://theqoo.net'
 const dcBaseUrl = 'https://gall.dcinside.com/'
 const dogBaseUrl = 'https://www.dogdrip.net/'
@@ -23,10 +29,77 @@ const EmptyUrl = ''
 let $href = [];
 const timer = (ms: number | undefined) => new Promise(res=>setTimeout(res,ms))
 
+export async function startCrawl(){
+  for(let i=0;i<8;i++){
+    console.log("server gogo crawl gogo"+i)
+    crawlingIndex(i)
+    await timer(15000)
+  }
+  // tqCrawl(EmptyUrl+tqUrl1,10)
+  // dogCrawl(EmptyUrl+dogUrl1,10)
+  startCrawl()
+}
+function crawlingIndex(index : number){
+  if (index<4){
+    getDogUrl(index)
+  }else if(index>=4 && index<8) {
+    gettqUrl(index)
+  }
+}
+function getDogUrl(index : number){
+  let url
+  switch(index){
+    case 1 : url = dogUrl1
+      break;
+    case 2 : url = dogUrl2
+      break;
+    case 3 : url = dogUrl3
+      break;
+    case 4 : url = dogUrl4
+      break;
+  }
+  dogCrawl(EmptyUrl+url,10)
+}
+
+function gettqUrl(index : number){
+  let url
+  switch(index){
+    case 1 : url = tqUrl1
+      break;
+    case 2 : url = tqUrl2
+      break;
+    case 3 : url = tqUrl3
+      break;
+    case 4 : url = tqUrl4
+      break;
+  }
+  tqCrawl(EmptyUrl+url,10)
+}
+
+async function tqCrawl(url:string, limit : number){
+  for(var i=1; i<= limit; i++){
+    await boardCrawl_theqoo(tqUrl+i)
+    if (i%5 == 0){
+      await timer(1500)
+    }
+    console.log("DKDKDK don : ",i)
+  }
+}
+
+async function dogCrawl(url:string, limit : number){
+  for(var i=1; i<= limit; i++){
+    await boardCrawl_dog(dogUrl+i)
+    if (i%5 == 0){
+      await timer(1500)
+    }
+    console.log("DKDKDK don : ",i)
+  }
+}
+
 router.get(
   '/crawlingTheqoo',
   asyncHandler(async (req, res)=>{
-    for(var i=1; i<= 3000; i++){
+    for(var i=1; i<= 1; i++){
       await boardCrawl_theqoo(tqUrl+i)
       if (i%5 == 0){
         await timer(1500)
@@ -136,11 +209,12 @@ router.get(
 async function boardCrawl_theqoo(url:string) {
   try{
     request.get(url,(err,res) => {
+      console.log("url is : ",url)
       let $ = load(res.body,{xmlMode : true});
       var result: { title: string; views: string; commentCount: string; link: string; created : string; }[] = [];
       try{
         $('table').find('tbody').find('tr').each(async function (index, elem){
-          if (index>4){
+          if (index>5){
             result[index]={
               title : $(this).find('td.title>a>span').text().trim(),
               views : $(this).find('td.m_no').text().trim(),
@@ -164,11 +238,10 @@ async function boardCrawl_theqoo(url:string) {
                   created : result[index].created,
                   sites : "theqoo",
                 } as Content)
-                console.log("DKDK!! create ")
+                console.log("DKDK!! create ",createdContent)
               }
+            await contentParse_theqoo(tqBaseUrl+result[index].link)
           }
-          console.log("url is : ",tqBaseUrl + result[index].link)
-          await contentParse_theqoo(tqBaseUrl+result[index].link)
         })
       }catch{
         throw new BadRequestError('BadResponse _ boardCrawling');
@@ -229,46 +302,38 @@ async function boardCrawl_dog(url:string) {
 
 async function contentParse_theqoo(url:string) {
   try{
-    request.get(url, (req,res)=>{
+    request.get(url, async (req,res)=>{
       let $ = load(res.body,{xmlMode : true})
-      var content : [string];
-      var comment : [string];
-      var result: { content?: string; comment? : string;  }[] = [];
+      console.log("content Parsing ", url)
       try{
         //본문 추가
-        $('article').find('.xe_content').each(async function (index,element){
-          if($(this).text().trim().length>0){
-            const Content = await ContentRepo.findContentAllDataById(url)
-            if (Content){
+        const Content = await ContentRepo.findContentAllDataById(url)
+        if (Content){
+          $('article').find('.xe_content').each(async function (index,element){
+            if($(this).text().trim().length>0){
               try{
                 Content.content += (+"\n"+$(this).text().trim())
                 await ContentRepo.update(Content)
+                console.log("content updated")
               }catch{
                 console.log("FUCK")
               }
-            }else {
-              console.log('본문 !콘텐트')
             }
-
-          }
-        })
-        //댓글 추가
-        $('div.cmtposition>ul.fdb_lst_ul').find('.xe_content').each(async function (index, ele) {
-          if($(this).text().trim().length>0){
-            console.log("comment "+$(this).text().trim())
-            const Content = await ContentRepo.findContentAllDataById(url)
-            if( Content ){
+          })
+          $('div.cmtposition>ul.fdb_lst_ul').find('.xe_content').each(async function (index, ele) {
+            if($(this).text().trim().length>0){
               try{
                 Content.comment += (+"\n"+$(this).text().trim())
                 await ContentRepo.update(Content)
+                console.log("comment updated")
               }catch{
                 console.log("FUCK")
               }
-            } else {
-              console.log('댓글 !콘텐트')
             }
-          }
-        })
+          })
+         }else {
+          console.log('본문 !콘텐트')
+        }
       }catch(ere){
         console.log('comment error',ere)
       }
