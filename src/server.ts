@@ -1,9 +1,10 @@
 import Logger from './core/Logger';
 import { port } from './config';
 import app from './app';
-import {startCrawl} from './routes/v1/crawling/crawling';
+// import {startCrawl} from './routes/v1/crawling/crawling';
+import {startTQCrawl} from './crawling/crawl_TQ';
 
-startCrawl()
+startTQCrawl()
 
 // app
 //   .listen(port, () => {

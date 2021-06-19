@@ -25,18 +25,110 @@ const dogUrl4 = 'https://www.dogdrip.net/index.php?mid=ib&page='; // 인방
 const tqBaseUrl = 'https://theqoo.net'
 const dcBaseUrl = 'https://gall.dcinside.com/'
 const dogBaseUrl = 'https://www.dogdrip.net/'
+const baseTwitterUrl1 = 'https://twitter.com/search?q=src=typed_query&f=live'
+const baseTwitterUrl2 = '&src=typed_query&f=live'
 const EmptyUrl = ''
-let $href = [];
+enum ArtistType {
+// 강승윤
+// 구구단
+// 구구단 세미나
+// 국헌&유빈
+// 규현
+// 김기범
+// 김도연
+// 김동현 (에이비식스)
+// 김성규
+// 김우석
+// 나띠
+// 남우현
+// 넬
+// 노태현
+// 뉴이스트
+// 뉴이스트 W
+// 동방신기
+// 드림캐쳐
+// 라비
+// 러블리즈
+// 레드벨벳
+// 레오 (빅스) 
+// 레오(빅스) 
+// 로제
+// 마마무
+// 모모랜드
+// 몬스타엑스
+// 문별
+// 바비
+// 박세진 김윤주(옥상달빛)
+// 백현
+// 베리베리
+// 블랙핑크
+// 빅스
+// 빅스LR
+// 샤이니
+// 성진환
+// 세븐틴
+// 세훈&찬열
+// 소녀시대
+// 소녀시대-Oh!GG
+// 송민호
+// 수호
+// 슈퍼주니어
+// 슈퍼주니어-D&E
+// 신화
+// 아스트로
+// 아이즈원
+// 안녕하신가영
+// 안예은
+// 에스에프나인
+// 에프엑스
+// 엑소
+// 엑스원
+// 엔시티
+// 엔시티 127
+// 엔시티 드림
+// 여자친구
+// 영케이
+// 예성
+// 요조
+// 워너원
+// 웨이션브이
+// 위키미키
+// 유노윤호
+// 윤도현
+// 윤아
+// 윤지성
+// 이성종, 남우현(인피니트)
+// 이진혁
+// 인투잇
+// 정세운
+// 조승연
+// 종현
+// 준수
+// 지수연
+// 청하
+// 첸
+// 최강창민
+// 최유정
+// 크나큰
+// 태민
+// 태연
+// 트레저
+// 프로미스나인
+// 하성운
+// 혁
+}
+
 const timer = (ms: number | undefined) => new Promise(res=>setTimeout(res,ms))
 
 export async function startCrawl(){
-  for(let i=0;i<8;i++){
-    console.log("server gogo crawl gogo"+i)
-    crawlingIndex(i)
-    await timer(15000)
-  }
+  // for(let i=0;i<8;i++){
+  //   console.log("server gogo crawl gogo"+i)
+  //   crawlingIndex(i)
+  //   await timer(15000)
+  // }
   // tqCrawl(EmptyUrl+tqUrl1,10)
-  // dogCrawl(EmptyUrl+dogUrl1,10)
+  dogCrawl(EmptyUrl+dogUrl1,10)
+  await timer(1500000)
   startCrawl()
 }
 function crawlingIndex(index : number){
@@ -64,7 +156,7 @@ function getDogUrl(index : number){
 function gettqUrl(index : number){
   let url
   switch(index){
-    case 1 : url = tqUrl1
+    case 1 : url = baseTwitterUrl1 + "" + baseTwitterUrl2
       break;
     case 2 : url = tqUrl2
       break;
@@ -74,6 +166,22 @@ function gettqUrl(index : number){
       break;
   }
   tqCrawl(EmptyUrl+url,10)
+}
+
+function getTwitUrl(index : number){
+  let url
+  switch (index) {
+    case 1 : url = tqUrl1
+      break;
+    case 2 : url = tqUrl2
+      break;
+    case 3 : url = tqUrl3
+      break;
+    case 4 : url = tqUrl4
+      break;
+    default:
+      break;
+  }
 }
 
 async function tqCrawl(url:string, limit : number){
@@ -204,6 +312,16 @@ router.get(
     }
   })
 );
+
+async function twitterCrawl(url:string){
+  try{
+    request.get(url,(err,res)=> {
+
+    })
+  }catch{
+
+  }
+}
 
 
 async function boardCrawl_theqoo(url:string) {

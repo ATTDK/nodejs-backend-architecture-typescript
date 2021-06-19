@@ -14,6 +14,7 @@ export default interface Content extends Document {
   created?: string;
   sites? : string;
   comment? : string;
+  artist? : string;
 }
 
 const schema = new Schema(
@@ -64,6 +65,12 @@ const schema = new Schema(
       trim : true,
     },
     comment: {
+      type: Schema.Types.String,
+      required: false,
+      select: false,
+      trim : true,
+    },
+    artist: {
       type: Schema.Types.String,
       required: false,
       select: false,

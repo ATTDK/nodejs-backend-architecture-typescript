@@ -1,0 +1,16 @@
+{
+  "apps": [
+    {
+      "name": "crawling",
+      "script": "npm run build:watch",
+      "instances": "max",
+      "exec_mode": "cluster"
+    },
+    {
+      "name": "s1_server",
+      "script": "npm run server:prod",
+      "instances": "max",
+      "exec_mode": "cluster"
+    }
+  ]
+}

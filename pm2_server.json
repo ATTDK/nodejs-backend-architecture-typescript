@@ -1,0 +1,8 @@
+{
+  "apps": [
+    {
+      "name": "crawling",
+      "script": "npm run server"
+    }
+  ]
+}
