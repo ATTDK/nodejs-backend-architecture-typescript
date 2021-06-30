@@ -25,6 +25,7 @@
       "*": ["node_modules/*", "src/types/*"]
     }
   },
+  "typeRoots": ["node_modules/@types"],
   "include": ["src/**/*"],
-  "exclude": [".templates"]
+  "exclude": ["node_modules"]
 }

@@ -5,7 +5,7 @@ import { Number, Types } from 'mongoose';
 
 export default class ContentRepo {
   private static CONTENT_ALL_DATA =
-  '+title +views +likes +commentCount ';
+  '+title +views +link +commentCount +artist +sites';
 
   // 다시 만들어야함
   public static findLinkIfExists(link: string): Promise<Content | null> {
@@ -25,6 +25,11 @@ export default class ContentRepo {
       .select(this.CONTENT_ALL_DATA)
       .lean<Content>()
       .exec();
+  }
+
+  public static findContentAllDataBySite(sites : string | null | undefined) : Promise<Content[] | null>{
+    return ContentModel.find({ sites : "theqoo" },{"_id":false,"title":false,"views":false,"commentCount":false,"created":false,"artist":false,"sites":false,"content":false})
+    .exec();
   }
 
 

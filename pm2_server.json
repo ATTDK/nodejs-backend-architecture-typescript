@@ -1,8 +1,8 @@
 {
   "apps": [
     {
-      "name": "crawling",
-      "script": "npm run server"
+      "name": "crawling_tq",
+      "script": "npm run watch-crawl"
     }
   ]
 }

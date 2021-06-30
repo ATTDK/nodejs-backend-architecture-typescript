@@ -4,7 +4,7 @@ import asyncHandler from '../helpers/asyncHandler';
 import { load } from 'cheerio';
 import axios from 'axios';
 import ContentRepo from '../database/repository/ContentRepo';
-import Content from '../database/model/Content';
+import Content, { ContentModel } from '../database/model/Content';
 import '../database';
 
 const router = express.Router();
@@ -20,12 +20,23 @@ const timer = (ms: number | undefined) => new Promise(res=>setTimeout(res,ms))
 
 export async function startTQCrawl(){
    for(let i=1;i<5;i++){
-     console.log("server gogo crawl gogo"+i)
+     console.log("start TheQoo crawl"+i)
      gettqUrl(i)
      await timer(15000)
    }
   startTQCrawl()
 }
+
+export async function startTQ_resCrawl(){
+  //타이머 1시간마다?
+  //
+  getDailyUrl()
+
+  // await timer(24 * 60 * 60 * 1000)
+  await timer( 1 * 10000)
+  startTQ_resCrawl()
+}
+
 function gettqUrl(index : number){
   let url
   switch (index) {
@@ -41,6 +52,31 @@ function gettqUrl(index : number){
       break;
   }
   tqCrawl(EmptyUrl+url,15)
+}
+
+async function getDailyUrl(){
+  let url
+  try {
+    const Contents = await ContentRepo.findContentAllDataBySite("theqoo")
+    if(Contents){
+      let some : string[] = Contents!.toString().split("{ link: '")
+      console.log("DKDK : ", Contents)
+      for(let i=1;i<some.length;i++){
+        console.log("length : ",i)
+        if(i==some.length-1){
+          console.log("DK Contents ur : " + some[i].split("' }")[0])
+          // boardCrawl_theqoo(some[i].split("' }")[0])
+        } else {
+          console.log("DK Contents ur : " + some[i].split("' },")[0])
+          // boardCrawl_theqoo(some[i].split("' }")[0])
+        }
+
+      }
+    }
+    
+  } catch (error) {
+      console.log("getDailly error : "+error)
+  }
 }
 
 
@@ -62,35 +98,43 @@ async function boardCrawl_theqoo(url:string) {
       var result: { title: string; views: string; commentCount: string; link: string; created : string; artist : string | undefined;}[] = [];
       try{
         $('table').find('tbody').find('tr').each(async function (index, elem){
-          if (index>6){
+          let require_index = 5;
+          let isTalk = false
+          if(url.includes('kstar')){
+            require_index = 6
+          } else if(url.includes('ktalk')) {
+            isTalk = true
+            // console.log(" dk :: " + $(this).find('td.title').find('a:nth-of-type(2)').attr('href')?.toString().trim().split('#')[0])
+          }
+          if (index>require_index){
             result[index]={
               title : $(this).find('td.title>a>span').text().trim(),
               views : $(this).find('td.m_no').text().trim(),
               commentCount : $(this).find('td.title>a.replyNum').text().trim(),
-              link : $(this).find('td.title>a').attr('href')!.toString(),
+              link :  isTalk ? $(this).find('td.title>a').attr('href')!.toString() : EmptyUrl + $(this).find('td.title').find('a:nth-of-type(2)').attr('href')?.toString().trim().split('#')[0],
               created : $(this).find('td.time').text().trim(),
-              artist : $(this).find('td.title>a.preface').text().trim(),
+              artist : isTalk ? "" : $(this).find('td.title>a.preface').text().trim().split(")")[0],
               } 
-              const Content = await ContentRepo.findContentAllDataById(result[index].link);
-              if (Content) {
-                  Content.views = result[index].views;
-                  Content.commentCount = result[index].commentCount;
-                  Content.created = result[index].created;
-                  Content.artist = result[index].artist
-                  await ContentRepo.update(Content)
-                  console.log("DKDK!! update ")
-              } else {
-                const createdContent = await ContentRepo.create({
-                  title : result[index].title,
-                  views : result[index].views,
-                  commentCount : result[index].commentCount,
-                  link : tqBaseUrl+result[index].link,
-                  created : result[index].created,
-                  artist : result[index].artist,
-                  sites : "theqoo",
-                } as Content)
-                console.log("DKDK!! create ",createdContent)
-              }
+            const Content = await ContentRepo.findContentAllDataById(result[index].link);
+            if (Content) {
+                Content.views = result[index].views;
+                Content.commentCount = result[index].commentCount;
+                Content.created = result[index].created;
+                Content.artist = result[index].artist
+                await ContentRepo.update(Content)
+                console.log("DKDK!! update ")
+            } else {
+              const createdContent = await ContentRepo.create({
+                title : result[index].title,
+                views : result[index].views,
+                commentCount : result[index].commentCount,
+                link : tqBaseUrl+result[index].link,
+                created : result[index].created,
+                artist : result[index].artist,
+                sites : "theqoo",
+              } as Content)
+              console.log("DKDK!! create ",createdContent)
+            }
             await contentParse_theqoo(tqBaseUrl+result[index].link)
           }
         })
