@@ -5,7 +5,7 @@ import app from './app';
 import {startTQCrawl, startTQ_resCrawl} from './crawling/crawl_TQ';
 
 startTQCrawl()
-// startTQ_resCrawl()
+startTQ_resCrawl()
 
 // app
 //   .listen(port, () => {

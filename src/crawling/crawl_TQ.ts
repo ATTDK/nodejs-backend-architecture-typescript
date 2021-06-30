@@ -6,6 +6,7 @@ import axios from 'axios';
 import ContentRepo from '../database/repository/ContentRepo';
 import Content, { ContentModel } from '../database/model/Content';
 import '../database';
+import { time } from 'console';
 
 const router = express.Router();
 const tqUrl = 'https://theqoo.net/index.php?mid=ktalk&filter_mode=normal&page=';
@@ -28,12 +29,9 @@ export async function startTQCrawl(){
 }
 
 export async function startTQ_resCrawl(){
-  //타이머 1시간마다?
-  //
   getDailyUrl()
 
-  // await timer(24 * 60 * 60 * 1000)
-  await timer( 1 * 10000)
+  await timer(60 * 1000)
   startTQ_resCrawl()
 }
 
@@ -59,18 +57,13 @@ async function getDailyUrl(){
   try {
     const Contents = await ContentRepo.findContentAllDataBySite("theqoo")
     if(Contents){
-      let some : string[] = Contents!.toString().split("{ link: '")
-      console.log("DKDK : ", Contents)
+      let some = Contents!.toString().split("link: '")
+      // console.log("test :?? :: ",some.length)
       for(let i=1;i<some.length;i++){
-        console.log("length : ",i)
-        if(i==some.length-1){
-          console.log("DK Contents ur : " + some[i].split("' }")[0])
-          // boardCrawl_theqoo(some[i].split("' }")[0])
-        } else {
-          console.log("DK Contents ur : " + some[i].split("' },")[0])
-          // boardCrawl_theqoo(some[i].split("' }")[0])
+        contentCrawl_theqoo(some[i].split("'")[0])
+        if(i % 100 == 0){
+          await timer(5000)
         }
-
       }
     }
     
@@ -87,6 +80,30 @@ async function tqCrawl(url:string, limit : number){
       await timer(1500)
     }
     console.log("DKDKDK don : ",i)
+  }
+}
+async function contentCrawl_theqoo(url:string) {
+  try{
+    request.get(url,async (err,res)=>{
+      console.log("url is : ",url)
+      let $ = load(res.body,{xmlMode : true})
+      const Content = await ContentRepo.findContentAllDataById(url);
+      var result: {views: string; commentCount: string; created : string;}
+      if(Content){
+        result={
+          views : $('div.theqoo_document_header').find('div.count_container').text().trim().split(" ")[0],
+          commentCount : $('div.theqoo_document_header').find('div.count_container').text().trim().split(" ")[2],
+          created : $('div.board.clear').find('div.side.fr > span').text().trim()
+        }
+        Content.views = result.views,
+        Content.commentCount = result.commentCount,
+        Content.created = result.created
+        await ContentRepo.update(Content)
+        console.log("DKDK!! update ")
+      }
+    })
+  }catch(error){
+    console.log(error)
   }
 }
 
