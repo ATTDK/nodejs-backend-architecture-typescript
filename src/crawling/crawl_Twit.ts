@@ -18,7 +18,7 @@ const EmptyUrl = ''
 const timer = (ms: number | undefined) => new Promise(res=>setTimeout(res,ms))
 
 export async function startTwitterCrawl(){
-   for(let i=1;i<9;i++){
+   for(let i=1;i<10;i++){
      console.log("start Twitter crawl"+i)
      gettqUrl(i)
      await timer(1500)
@@ -101,7 +101,6 @@ async function twitCrawl1() {
     boardCrawl(artist)
   }
 }
-
 async function twitCrawl2() {
   for(var i=1; i<=10; i++){
     var artist = ""
