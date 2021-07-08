@@ -24,6 +24,7 @@ const googleurl3 = ',cd_max:'
 const browser = puppeteer.launch({
   headless: true,
   args: ['--no-sandbox', '--disable-setuid-sandbox'],//for ec2
+  executablePath: '/usr/bin/chromium-browser', // for ec2
 });
 
 const timer = (ms: number | undefined) => new Promise(res=>setTimeout(res,ms))
