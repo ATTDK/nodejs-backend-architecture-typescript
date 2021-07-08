@@ -22,7 +22,8 @@ const googleurl1 = 'https://www.google.com/search?q=site:theqoo.net+'
 const googleurl2 = '&tbs=cdr:1,cd_min:'
 const googleurl3 = ',cd_max:'
 const browser = puppeteer.launch({
-  headless: false
+  headless: true,
+  args: ['--no-sandbox', '--disable-setuid-sandbox'],//for ec2
 });
 
 const timer = (ms: number | undefined) => new Promise(res=>setTimeout(res,ms))
