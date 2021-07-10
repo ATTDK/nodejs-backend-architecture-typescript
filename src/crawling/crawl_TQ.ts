@@ -23,12 +23,9 @@ const googleurl3 = ',cd_max:'
 const browser = puppeteer.launch({
   headless: true,
   // headless: false,
-  // args: ['--no-sandbox', '--disable-setuid-sandbox'],//for ec2
+  args: ['--no-sandbox', '--disable-setuid-sandbox'],//for ec2
   // executablePath: '/usr/bin/chromium-browser', // for ec2
   ignoreDefaultArgs: ["--enable-automation"],
-  args:[
-
-  ]
 });
 
 const timer = (ms: number | undefined) => new Promise(res=>setTimeout(res,ms))
@@ -574,7 +571,7 @@ async function ggCrawl(url:string, artist : string){
     const inBrowser = await puppeteer.launch({
         // headless: false,
         headless: true, //for ec2
-        // args: ['--no-sandbox', '--disable-setuid-sandbox'],//for ec2
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],//for ec2
         executablePath: '/usr/bin/chromium-browser', // for ec2
       })
     const page = await (await inBrowser).newPage();
