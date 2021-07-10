@@ -50,7 +50,7 @@ export async function startTQ_pastCrawl(){
   for(let i=1;i<10;i++){
     console.log("start TheQoo gg crawl"+i)
     gettqUrl_google(i)
-    await timer(150000)
+    await timer(24 * 60 * 1000)
   }
   startTQ_pastCrawl()
   // gettqUrl_google(1)
@@ -562,9 +562,9 @@ function getUrl(artist:string) {
   startYr.setMonth(startYr.getMonth()+1)
   // endYr.setFullYear(endYr.getFullYear()-2)/
   endYr.setFullYear(endYr.getFullYear()-1)
-  endYr.setMonth(endYr.getMonth()-10)
+  endYr.setMonth(endYr.getMonth()-11)
   endYr.setDate(endYr.getDate()+1)
-
+  
   return googleurl1+encodeURIComponent(artist)
   +googleurl2+startYr.getMonth() +"/"+ startYr.getDate() +"/"+ startYr.getFullYear()
   +googleurl3+endYr.getMonth() +"/"+ endYr.getDate() +"/"+ endYr.getFullYear()
