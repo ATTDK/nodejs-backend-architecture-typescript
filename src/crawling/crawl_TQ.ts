@@ -48,7 +48,7 @@ export async function startTQ_resCrawl(){
 
 export async function startTQ_pastCrawl(){
   for(let i=1;i<10;i++){
-    console.log("start TheQoo crawl"+i)
+    console.log("start TheQoo gg crawl"+i)
     gettqUrl_google(i)
     await timer(150000)
   }
@@ -586,6 +586,9 @@ async function ggCrawl(url:string, artist : string){
     await page.goto(url);
     const content = await page.content()
     const $ = load(content) 
+    if(page.url().match('www.google.com/sorry/index?')){
+      console.log("its blocked")
+    }
     const lists = $('.tF2Cxc').find('a')
     const next =  $('tbody').find('a').attr('id')?.toString()=='pnprev' ? undefined : $('tbody').find('a').attr('href')?.toString() 
     // pnprev
