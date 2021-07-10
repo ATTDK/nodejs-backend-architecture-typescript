@@ -21,8 +21,8 @@ const googleurl1 = 'https://www.google.com/search?q=site:theqoo.net++intitle%3A'
 const googleurl2 = '&tbs=cdr:1,cd_min:'
 const googleurl3 = ',cd_max:'
 const browser = puppeteer.launch({
-  // headless: true,
-  headless: false,
+  headless: true,
+  // headless: false,
   // args: ['--no-sandbox', '--disable-setuid-sandbox'],//for ec2
   // executablePath: '/usr/bin/chromium-browser', // for ec2
   ignoreDefaultArgs: ["--enable-automation"],
@@ -126,7 +126,6 @@ async function gettqUrl_google(index : number){
 }
 async function tq_gg_crawl1() {
   for(var i=1; i<=10; i++){
-    console.log("tq_gg_crawl1",Date())
     var artist = ""
     switch (i) {
       case 1:
@@ -575,7 +574,7 @@ async function ggCrawl(url:string, artist : string){
     const inBrowser = await puppeteer.launch({
         // headless: false,
         headless: true, //for ec2
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],//for ec2
+        // args: ['--no-sandbox', '--disable-setuid-sandbox'],//for ec2
         executablePath: '/usr/bin/chromium-browser', // for ec2
       })
     const page = await (await inBrowser).newPage();
