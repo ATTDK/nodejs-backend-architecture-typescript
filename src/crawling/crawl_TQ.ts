@@ -7,7 +7,6 @@ import axios from 'axios';
 import ContentRepo from '../database/repository/ContentRepo';
 import Content, { ContentModel } from '../database/model/Content';
 import '../database';
-import { time } from 'console';
 
 const router = express.Router();
 const tqUrl = 'https://theqoo.net/index.php?mid=ktalk&filter_mode=normal&page=';
@@ -18,13 +17,18 @@ const tqUrl4 = 'https://theqoo.net/index.php?mid=kdolgirls&filter_mode=normal&pa
 const tqBaseUrl = 'https://theqoo.net'
 const EmptyUrl = ''
 const baseGoogleUrl = 'https://www.google.com'
-const googleurl1 = 'https://www.google.com/search?q=site:theqoo.net+'
+const googleurl1 = 'https://www.google.com/search?q=site:theqoo.net++intitle%3A'
 const googleurl2 = '&tbs=cdr:1,cd_min:'
 const googleurl3 = ',cd_max:'
 const browser = puppeteer.launch({
-  headless: true,
-  args: ['--no-sandbox', '--disable-setuid-sandbox'],//for ec2
-  executablePath: '/usr/bin/chromium-browser', // for ec2
+  // headless: true,
+  headless: false,
+  // args: ['--no-sandbox', '--disable-setuid-sandbox'],//for ec2
+  // executablePath: '/usr/bin/chromium-browser', // for ec2
+  ignoreDefaultArgs: ["--enable-automation"],
+  args:[
+
+  ]
 });
 
 const timer = (ms: number | undefined) => new Promise(res=>setTimeout(res,ms))
@@ -49,48 +53,34 @@ export async function startTQ_pastCrawl(){
   for(let i=1;i<10;i++){
     console.log("start TheQoo crawl"+i)
     gettqUrl_google(i)
-    await timer(50000)
+    await timer(150000)
   }
   startTQ_pastCrawl()
   // gettqUrl_google(1)
   console.log("DKDK start past crawl")
   // ggCrawl('https://www.google.com/search?&as_epq=%EA%B9%80%EC%84%B8%EC%A0%95&as_qdr=all&as_sitesearch=theqoo.net&tbs=cdr:1,cd_min:4/7/2021,cd_max:4/8/2021','김세정') // 폰에선 작동됨
   // ggCrawl('https://www.google.com/search?&as_epq=%EA%B9%80%EC%84%B8%EC%A0%95&as_qdr=all&as_sitesearch=theqoo.net&tbs=cdr:y','김세정')
-  
   // const browser = await puppeteer.launch({
   //   headless: false
   // })
-  // const page = await browser.newPage();
+  // const page = await (await browser).newPage();
   // await page.setViewport({
   //   width: 1366,
   //   height: 768
   // });
-  // await page.goto('https://www.google.com/search?&as_epq=%EA%B9%80%EC%84%B8%EC%A0%95&as_qdr=all&as_sitesearch=theqoo.net&tbs=cdr:1,cd_min:4/7/2020,cd_max:4/8/2021');
+  // await page.goto('https://www.google.com/search?q=site:theqoo.net++intitle:%EA%B9%80%EC%9A%B0%EC%84%9D&tbs=cdr:1,cd_min:7/10/2019,cd_max:7/11/2019&ei=D1bpYKbDOoyGr7wPmdKYwAg&start=10&sa=N&ved=2ahUKEwjmhtTrhtjxAhUMw4sBHRkpBogQ8tMDegQIAhA6&cshid=1625904673235916');
   // const content = await page.content()
   // const $ = load(content) 
   // const lists = $('.tF2Cxc').find('a')
-  // const next = $('tbody').find('a').attr('href')?.toString()
+  // const next =  $('tbody').find('a').attr('id')?.toString()
   // console.log(next)
-  // lists.each((index, list) => {
-  //   if($(list).attr('href')?.toString().match('https://theqoo.net') && !$(list).attr('href')?.toString().match('webcache')){
-  //     console.log(index)
-  //     console.log($(list).attr('href'))
-  //     console.log("gacha")
+  // for(let i=1;i<lists.length;i++){
+  //   if($(lists[i]).attr('href')?.toString().match('https://theqoo.net') && !$(lists[i]).attr('href')?.toString().match('webcache')){
+  //     await timer(1500)
+  //     console.log("dkdk"+Date())
+  //     console.log($(lists[i]).attr('href'))
   //   }
-  // })
-  // await page.goto(baseGoogleUrl+next)
-  // const newcontent = await page.content()
-  // const $$ = load(content) 
-  // const listss = $$('.tF2Cxc').find('a')
-  // const nexts = $$('tbody').find('a').attr('href')?.toString()
-  // console.log(nexts)
-  // listss.each((index, list) => {
-  //   if($(list).attr('href')?.toString().match('https://theqoo.net') && !$(list).attr('href')?.toString().match('webcache')){
-  //     console.log(index)
-  //     console.log($(list).attr('href'))
-  //     console.log("gacha")
-  //   }
-  // })
+  // }
 }
 
 function gettqUrl(index : number){
@@ -220,8 +210,8 @@ async function tq_gg_crawl2() {
   }
 }
 async function tq_gg_crawl3() {
-  await timer(15000)
   for(var i=1; i<=10; i++){
+  await timer(15000)
     var artist = ""
     switch (i) {
       case 1:
@@ -257,6 +247,7 @@ async function tq_gg_crawl3() {
       default:
         artist = "김윤주"
         break;
+        
     }
     ggCrawl(getUrl(artist),artist)
   }
@@ -514,7 +505,7 @@ function getUrl(artist:string) {
   startYr.setMonth(startYr.getMonth()+1)
   // endYr.setFullYear(endYr.getFullYear()-2)/
   endYr.setFullYear(endYr.getFullYear()-1)
-  endYr.setMonth(endYr.getMonth()-11)
+  endYr.setMonth(endYr.getMonth()-10)
   endYr.setDate(endYr.getDate()+1)
 
   return googleurl1+encodeURIComponent(artist)
@@ -578,30 +569,51 @@ async function contentCrawl_theqoo(url:string) {
 }
 
 async function ggCrawl(url:string, artist : string){
+  const UA =  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36'
   try{
     console.log("ggCrawl url "+url)
-    const page = await (await browser).newPage();
+    const inBrowser = await puppeteer.launch({
+        // headless: false,
+        headless: true, //for ec2
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],//for ec2
+        executablePath: '/usr/bin/chromium-browser', // for ec2
+      })
+    const page = await (await inBrowser).newPage();
+    await page.setExtraHTTPHeaders({
+      'asscept-charset':'euc-kr'
+    })
+    
     await page.setViewport({
       width: 1366,
-      height: 768
+      height: 768,
+      isMobile: false,
+      deviceScaleFactor: 1,
+      hasTouch: false,
+      isLandscape: false,
     });
+    await page.setUserAgent(UA)
+    await page.setJavaScriptEnabled(true);
+    await page.setDefaultNavigationTimeout(0);
     await page.goto(url);
     const content = await page.content()
     const $ = load(content) 
     const lists = $('.tF2Cxc').find('a')
-    const next =  $('tbody').find('a').attr('href')?.toString()
-    lists.each(async (index, list) => {
-      if($(list).attr('href')?.toString().match('https://theqoo.net') && !$(list).attr('href')?.toString().match('webcache')){
-        await timer(1000)
-        crawl_theqoo($(list).attr('href')!.toString(),artist)
+    const next =  $('tbody').find('a').attr('id')?.toString()=='pnprev' ? undefined : $('tbody').find('a').attr('href')?.toString() 
+    // pnprev
+    for(let i=1;i<lists.length;i++){
+      if($(lists[i]).attr('href')?.toString().match('https://theqoo.net') && !$(lists[i]).attr('href')?.toString().match('webcache')){
+        await timer(1500)
+        console.log("dkdk"+Date())
+        console.log($(lists[i]).attr('href'))
+        crawl_theqoo($(lists[i]).attr('href')!.toString(),artist)
       }
-    })
-    await timer(1000)
-    page.close()
+    }
+    await page.close()
     if(next != undefined){
       console.log("DKDK ::: __ next link : "+ next)
       ggCrawl(baseGoogleUrl+next,artist)
     }
+    inBrowser.close()
   }catch(error){
     console.log("error 1 : "+error)
   }
@@ -664,8 +676,12 @@ async function boardCrawl_theqoo(url:string) {
   }
 }
 async function crawl_theqoo(url:string, artist : string) {
+  var options ={
+    url : url,
+    headers: { 'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36' }
+  }
   try{
-    request.get(url, async (req,res)=>{
+    request.get(options, async (req,res)=>{
       let $ = load(res.body,{xmlMode : true})
       var result: { title: string; views: string; commentCount: string; link: string; created : string; artist : string | undefined; content : string | undefined;};
       console.log("content Parsing ", url)
