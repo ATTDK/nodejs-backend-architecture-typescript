@@ -20,13 +20,13 @@ const baseGoogleUrl = 'https://www.google.com'
 const googleurl1 = 'https://www.google.com/search?q=site:theqoo.net++intitle%3A'
 const googleurl2 = '&tbs=cdr:1,cd_min:'
 const googleurl3 = ',cd_max:'
-const browser = puppeteer.launch({
-  headless: true,
+// const browser = puppeteer.launch({
+  // headless: true,
   // headless: false,
-  args: ['--no-sandbox', '--disable-setuid-sandbox'],//for ec2
+  // args: ['--no-sandbox', '--disable-setuid-sandbox'],//for ec2
   // executablePath: '/usr/bin/chromium-browser', // for ec2
-  ignoreDefaultArgs: ["--enable-automation"],
-});
+  // ignoreDefaultArgs: ["--enable-automation"],
+// });
 
 const timer = (ms: number | undefined) => new Promise(res=>setTimeout(res,ms))
 
@@ -55,6 +55,7 @@ export async function startTQ_pastCrawl(){
   startTQ_pastCrawl()
   // gettqUrl_google(1)
   console.log("DKDK start past crawl")
+  // testGGCrawl('https://www.google.com/search?&as_epq=%EA%B9%80%EC%84%B8%EC%A0%95&as_qdr=all&as_sitesearch=theqoo.net&tbs=cdr:1,cd_min:1/1/2020,cd_max:4/8/2021','김세정')
   // ggCrawl('https://www.google.com/search?&as_epq=%EA%B9%80%EC%84%B8%EC%A0%95&as_qdr=all&as_sitesearch=theqoo.net&tbs=cdr:1,cd_min:4/7/2021,cd_max:4/8/2021','김세정') // 폰에선 작동됨
   // ggCrawl('https://www.google.com/search?&as_epq=%EA%B9%80%EC%84%B8%EC%A0%95&as_qdr=all&as_sitesearch=theqoo.net&tbs=cdr:y','김세정')
   // const browser = await puppeteer.launch({
@@ -79,6 +80,66 @@ export async function startTQ_pastCrawl(){
   //   }
   // }
 }
+// async function testGGCrawl(url : string,artist : string){
+//   try{
+//     console.log("ggCrawl url "+url)
+//     // const inBrowser = await puppeteer.launch({
+//     //     headless: false,
+//         // headless: true, //for ec2
+//         // args: ['--no-sandbox', '--disable-setuid-sandbox'],//for ec2
+//         // executablePath: '/usr/bin/chromium-browser', // for ec2
+//       // })
+//     const page = await (await browser).newPage();
+//     await page.setExtraHTTPHeaders({
+//       'asscept-charset':'euc-kr'
+//     })
+    
+//     await page.setViewport({
+//       width: 1366,
+//       height: 768,
+//     });
+//     await page.goto(url);
+//     const content = await page.content()
+//     const $ = load(content) 
+//     if(page.url().match('www.google.com/sorry/index?')){
+//       console.log("its blocked")
+//     }
+//     const lists = $('.tF2Cxc').find('a')
+//     let next = undefined
+//     $('tbody').find('td').each(async function (index, elem){
+//       console.log('im in for')
+//       if($(this).find('a').attr('id')?.toString()=='pnnext'){
+//         next=$(this).find('a').attr('href')?.toString()
+//         console.log('href : '+next)
+//       }
+//     })
+//     // const nextlist =  $('tbody')
+//     // nextlist.each(async (index,element)=>{
+//     //   if($(nextlist).find('a').attr('id')?.toString().match('pnnext')){
+//     //     console.log('asdasdasd??')
+//     //     next = $(nextlist).attr('href')?.toString().trim()
+//     //   }
+//     // })
+//     console.log('next : '+next)
+    
+//     for(let i=1;i<lists.length;i++){
+//       await timer(100)
+//       if($(lists[i]).attr('href')?.toString().match('https://theqoo.net') && !$(lists[i]).attr('href')?.toString().match('webcache')){
+//         console.log("dkdk"+Date())
+//         console.log($(lists[i]).attr('href'))
+//         // crawl_theqoo($(lists[i]).attr('href')!.toString(),artist)
+//       }
+//     }
+//     await page.close()
+//     if(next != undefined){
+//       console.log("DKDK ::: __ next link : "+ next)
+//       testGGCrawl(baseGoogleUrl+next,artist)
+//     }
+//     // inBrowser.close()
+//   }catch(error){
+//     console.log("error 1 : "+error)
+//   }
+// }
 
 function gettqUrl(index : number){
   let url
@@ -590,8 +651,12 @@ async function ggCrawl(url:string, artist : string){
       console.log("its blocked")
     }
     const lists = $('.tF2Cxc').find('a')
-    const next =  $('tbody').find('a').attr('id')?.toString()=='pnprev' ? undefined : $('tbody').find('a').attr('href')?.toString() 
-    // pnprev
+    let next = undefined
+    $('tbody').find('td').each(async function (index, elem){
+      if($(this).find('a').attr('id')?.toString()=='pnnext'){
+        next=$(this).find('a').attr('href')?.toString()
+      }
+    })
     for(let i=1;i<lists.length;i++){
       if($(lists[i]).attr('href')?.toString().match('https://theqoo.net') && !$(lists[i]).attr('href')?.toString().match('webcache')){
         await timer(1500)
