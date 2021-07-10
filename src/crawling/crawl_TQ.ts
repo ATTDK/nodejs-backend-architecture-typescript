@@ -586,14 +586,7 @@ async function ggCrawl(url:string, artist : string){
     await page.setViewport({
       width: 1366,
       height: 768,
-      isMobile: false,
-      deviceScaleFactor: 1,
-      hasTouch: false,
-      isLandscape: false,
     });
-    await page.setUserAgent(UA)
-    await page.setJavaScriptEnabled(true);
-    await page.setDefaultNavigationTimeout(0);
     await page.goto(url);
     const content = await page.content()
     const $ = load(content) 
@@ -678,7 +671,7 @@ async function boardCrawl_theqoo(url:string) {
 async function crawl_theqoo(url:string, artist : string) {
   var options ={
     url : url,
-    headers: { 'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36' }
+    // headers: { 'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36' }
   }
   try{
     request.get(options, async (req,res)=>{
