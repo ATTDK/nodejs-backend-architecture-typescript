@@ -2,7 +2,15 @@
   "apps": [
     {
       "name": "crawling_tq",
-      "script": "npm run watch"
+      "script": "npm run crawl_1"
+    },
+    {
+      "name": "crawling_tq_past",
+      "script": "npm run crawl_2"
+    },
+    {
+      "name": "crawling_tq_2y",
+      "script": "npm run crawl_3"
     }
   ]
 }

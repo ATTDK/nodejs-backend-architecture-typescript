@@ -2,7 +2,7 @@
   "apps": [
     {
       "name": "crawling_tq",
-      "script": "npm run watch-crawl"
+      "script": "npm run start"
     }
   ]
 }
