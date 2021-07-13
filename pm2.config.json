@@ -11,6 +11,14 @@
     {
       "name": "crawling_tq_2y",
       "script": "npm run crawl_3"
+    },
+    {
+      "name": "crawling_dc",
+      "script": "npm run crawl_4"
+    },
+    {
+      "name": "crawling_youtube",
+      "script": "npm run crawl_5"
     }
   ]
 }
