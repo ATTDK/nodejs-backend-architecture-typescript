@@ -26,27 +26,29 @@ const googleurl3 = ',cd_max:'
 const timer = (ms: number | undefined) => new Promise(res=>setTimeout(res,ms))
 
 export async function startUT_pastCrawl(){
-  for(let i=1;i<10;i++){
-    console.log("start TheQoo gg crawl"+i)
-    getUTUrl_google(i)
-    await timer(24 * 60 * 1000)
-  }
-  startUT_pastCrawl()
+  // for(let i=1;i<10;i++){
+  //   console.log("start TheQoo gg crawl"+i)
+  //   getUTUrl_google(i)
+  //   await timer(24 * 60 * 1000)
+  // }
+  // startUT_pastCrawl()
   console.log("DKDK start past crawl")
-  let startYr = new Date();
-  let endYr = new Date();
-  startYr.setFullYear(startYr.getFullYear()-2)
-  startYr.setMonth(startYr.getMonth()+1)
+  // let startYr = new Date();
+  // let endYr = new Date();
+  // startYr.setFullYear(startYr.getFullYear()-2)
+  // startYr.setMonth(startYr.getMonth()+1)
   // endYr.setFullYear(endYr.getFullYear()-2)/
-  endYr.setFullYear(endYr.getFullYear()-1)
-  endYr.setMonth(endYr.getMonth()-11)
-  endYr.setDate(endYr.getDate()+1)
+  // endYr.setFullYear(endYr.getFullYear()-1)
+  // endYr.setMonth(endYr.getMonth()-11)
+  // endYr.setDate(endYr.getDate()+1)
   // testGGCrawl(googleurl1+encodeURIComponent('김세정')
   // +googleurl2+startYr.getMonth() +"/"+ startYr.getDate() +"/"+ startYr.getFullYear()
   // +googleurl3+endYr.getMonth() +"/"+ endYr.getDate() +"/"+ endYr.getFullYear(),'김세정')
   // testGGCrawl('https://www.google.com/search?q=intitle:%EC%95%84%EC%9D%B4%EC%9C%A0+site:youtube.com&tbs=qdr:w&sxsrf=ALeKk01oiz8M4anfAdplh2xoawFhXtRY0g:1626104125412&ei=PWHsYP7VGNLJmAXbyIK4CA&start=0&sa=N&ved=2ahUKEwi-6Iz27d3xAhXSJKYKHVukAIc4HhDy0wN6BAgBEDk&biw=851&bih=880','아이유')
   // crawl_ut('https://www.youtube.com/watch?v=dF4uPvUs7RY&ab_channel=MnetOfficial','아이유')
   // testGGCrawl('https://www.youtube.com/watch?v=dF4uPvUs7RY&ab_channel=MnetOfficial','아이유')
+  testGGCrawl('https://www.youtube.com/watch?v=RSv0K4hQyV8&ab_channel=%EA%B3%BD%ED%8A%9C%EB%B8%8CKWAKTUBE','아이유')
+  
   // ggCrawl('https://www.google.com/search?q=intitle:%EC%95%84%EC%9D%B4%EC%9C%A0+site:youtube.com&tbs=qdr:w&sxsrf=ALeKk02KJpLleV9PUh5VDTiJrXbnzGEUJA:1626192643942&ei=A7vtYO-HOe-bmAW5yp2IBw&start=0&sa=N&ved=2ahUKEwivlYPXt-DxAhXvDaYKHTllB3E4FBDy0wN6BAgBEEA&biw=851&bih=937','아이유')
 }
 async function testGGCrawl(url : string,artist : string){
@@ -62,13 +64,20 @@ async function testGGCrawl(url : string,artist : string){
     await page.setExtraHTTPHeaders({
       'asscept-charset':'euc-kr'
     })
-    
     await page.setViewport({
       width: 1366,
       height: 768,
     });
     await page.goto(url);
     await timer(3000)
+    // const firstContent = await page.content()
+    // const first = load(firstContent)
+    
+    for (let i = 0;i<200;i++){
+      await page.keyboard.press('PageDown')
+      await timer(100)
+    }
+    
     const content = await page.content()
     const $ = load(content) 
     if(page.url().match('www.google.com/sorry/index?')){
@@ -82,17 +91,18 @@ async function testGGCrawl(url : string,artist : string){
     console.log("youtube\n"
         +$('#name').children()
         +'views : ' + $('#count > ytd-video-view-count-renderer > span.view-count.style-scope.ytd-video-view-count-renderer').text()
-        +'commentCount : ' + $('div.title > h2 > yt-formatted-string > span:nth-of-type(2)').text()
+        +'commentCount : ' + $('#title > h2 > yt-formatted-string > span:nth-child(2)').text()
         +'likes : ' + $('ytd-toggle-button-renderer > a > yt-formatted-string').text()
         +'writer : ' + $('#container > div > yt-formatted-string > a').text()
         +'created : ' + $('#info-text > #info-strings > yt-formatted-string').text()
         +'content : ' + $('#content > #description > yt-formatted-string').children().text()
         )
+    // console.log("comment? "+ $('#author-text > span').text())
         
-    // const lists = $('#icon-label')
-    // lists.each(function(index,element){
-    //   console.log(""+index + $(this).text())
-    // })
+    const lists = $('#content-text')
+    lists.each(function(index,element){
+      console.log("comment : "+index + $(this).text())
+    })
     // let next = undefined
     // $('tbody').find('td').each(async function (index, elem){
     //   console.log('im in for')
@@ -615,6 +625,10 @@ async function crawl_ut(url:string, artist : string) {
     });
     await page.goto(url);
     await timer(3000)
+    for (let i = 0;i<200;i++){
+      await page.keyboard.press('PageDown')
+      await timer(100)
+    }
     const content = await page.content()
     const $ = load(content) 
     if(page.url().match('www.google.com/sorry/index?')){
@@ -626,7 +640,7 @@ async function crawl_ut(url:string, artist : string) {
         const Content = await ContentRepo.findContentAllDataById(url)
         // console.log("youtube\n"
         // +'views : ' + $('#count > ytd-video-view-count-renderer > span.view-count.style-scope.ytd-video-view-count-renderer').text()
-        // +'commentCount : ' + $('div.title > h2 > yt-formatted-string > span:nth-of-type(2)').text()
+        // +'commentCount : ' + $('div.title > h2 > yt-formatted-string > span:nth-child(2)').text()
         // +'likes : ' + $('ytd-toggle-button-renderer > a > yt-formatted-string').text()
         // +'writer : ' + $('#container > div > yt-formatted-string > a').text()
         // +'created : ' + $('#info-text > #info-strings > yt-formatted-string').text()
@@ -638,7 +652,7 @@ async function crawl_ut(url:string, artist : string) {
           result={
             title : $('h1.title.style-scope.ytd-video-primary-info-renderer > yt-formatted-string').text().trim(),
             views : $('#count > ytd-video-view-count-renderer > span.view-count.style-scope.ytd-video-view-count-renderer').text().split(' ')[1],
-            commentCount : $('div.title > h2 > yt-formatted-string > span:nth-of-type(2)').text().trim(),
+            commentCount : $('div.title > h2 > yt-formatted-string > span:nth-child(2)').text().trim(),
             likes : $('ytd-toggle-button-renderer > a > yt-formatted-string').text().split(' ')[1],
             link : url,
             writer : $('#container > div > yt-formatted-string > a').text().trim(),
