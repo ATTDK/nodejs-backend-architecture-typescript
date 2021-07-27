@@ -26,25 +26,16 @@ const browser = puppeteer.launch({
 const timer = (ms: number | undefined) => new Promise(res=>setTimeout(res,ms))
 
 export async function startDC_pastCrawl(){
-  // for(let i=1;i<10;i++){
-  //   console.log("start TheQoo gg crawl"+i)
-  //   getDCUrl_google(i)
-  //   await timer(24 * 60 * 1000)
-  // }
-  // startTT_pastCrawl()
-  console.log("DKDK start past crawl")
-  let startYr = new Date();
-  let endYr = new Date();
-  startYr.setFullYear(startYr.getFullYear()-2)
-  startYr.setMonth(startYr.getMonth()+1)
-  // endYr.setFullYear(endYr.getFullYear()-2)/
-  endYr.setFullYear(endYr.getFullYear()-1)
-  endYr.setMonth(endYr.getMonth()-11)
-  endYr.setDate(endYr.getDate()+1)
+  for(let i=1;i<10;i++){
+    console.log("start TheQoo gg crawl"+i)
+    getDCUrl_google(i)
+    await timer(24 * 60 * 1000)
+  }
+  startDC_pastCrawl()
   // testGGCrawl(googleurl1+encodeURIComponent('김세정')
   // +googleurl2+startYr.getMonth() +"/"+ startYr.getDate() +"/"+ startYr.getFullYear()
   // +googleurl3+endYr.getMonth() +"/"+ endYr.getDate() +"/"+ endYr.getFullYear(),'김세정')
-  testGGCrawl('https://www.google.com/search?q=intitle:%EC%95%84%EC%9D%B4%EC%9C%A0+site:dcinside.com&tbs=qdr:w&sxsrf=ALeKk01oiz8M4anfAdplh2xoawFhXtRY0g:1626104125412&ei=PWHsYP7VGNLJmAXbyIK4CA&start=0&sa=N&ved=2ahUKEwi-6Iz27d3xAhXSJKYKHVukAIc4HhDy0wN6BAgBEDk&biw=851&bih=880','아이유')
+  // testGGCrawl('https://www.google.com/search?q=intitle:%EC%95%84%EC%9D%B4%EC%9C%A0+site:dcinside.com&tbs=qdr:w&sxsrf=ALeKk01oiz8M4anfAdplh2xoawFhXtRY0g:1626104125412&ei=PWHsYP7VGNLJmAXbyIK4CA&start=0&sa=N&ved=2ahUKEwi-6Iz27d3xAhXSJKYKHVukAIc4HhDy0wN6BAgBEDk&biw=851&bih=880','아이유')
 }
 async function testGGCrawl(url : string,artist : string){
   try{
@@ -524,10 +515,10 @@ async function ggCrawl(url:string, artist : string){
   try{
     console.log("ggCrawl url "+url)
     const inBrowser = await puppeteer.launch({
-        headless: false,
-        // headless: true, //for ec2
-        // args: ['--no-sandbox', '--disable-setuid-sandbox'],//for ec2
-        // executablePath: '/usr/bin/chromium-browser', // for ec2
+        // headless: false,
+        headless: true, //for ec2
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],//for ec2
+        executablePath: '/usr/bin/chromium-browser', // for ec2
       })
     const page = await (await inBrowser).newPage();
     await page.setExtraHTTPHeaders({
