@@ -18,6 +18,8 @@
     "crawl_1": "npm run build && npm run serve_1",
     "crawl_2": "npm run build && npm run serve_2",
     "crawl_3": "npm run build && npm run serve_3",
+    "crawl_4": "npm run build && npm run serve_4",
+    "crawl_5": "npm run build && npm run serve_5",
     "clean": "rimraf ./build",
     "build-ts": "tsc",
     "watch-ts": "tsc -w",

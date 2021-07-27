@@ -1,5 +1,4 @@
 import { Schema, model, Document, Number } from 'mongoose';
-import Site, { SiteCode } from './Site';
 export const DOCUMENT_NAME = 'Content';
 export const COLLECTION_NAME = 'contents';
 

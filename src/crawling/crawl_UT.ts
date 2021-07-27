@@ -26,28 +26,14 @@ const googleurl3 = ',cd_max:'
 const timer = (ms: number | undefined) => new Promise(res=>setTimeout(res,ms))
 
 export async function startUT_pastCrawl(){
-  // for(let i=1;i<10;i++){
-  //   console.log("start TheQoo gg crawl"+i)
-  //   getUTUrl_google(i)
-  //   await timer(24 * 60 * 1000)
-  // }
-  // startUT_pastCrawl()
-  console.log("DKDK start past crawl")
-  // let startYr = new Date();
-  // let endYr = new Date();
-  // startYr.setFullYear(startYr.getFullYear()-2)
-  // startYr.setMonth(startYr.getMonth()+1)
-  // endYr.setFullYear(endYr.getFullYear()-2)/
-  // endYr.setFullYear(endYr.getFullYear()-1)
-  // endYr.setMonth(endYr.getMonth()-11)
-  // endYr.setDate(endYr.getDate()+1)
-  // testGGCrawl(googleurl1+encodeURIComponent('김세정')
-  // +googleurl2+startYr.getMonth() +"/"+ startYr.getDate() +"/"+ startYr.getFullYear()
-  // +googleurl3+endYr.getMonth() +"/"+ endYr.getDate() +"/"+ endYr.getFullYear(),'김세정')
-  // testGGCrawl('https://www.google.com/search?q=intitle:%EC%95%84%EC%9D%B4%EC%9C%A0+site:youtube.com&tbs=qdr:w&sxsrf=ALeKk01oiz8M4anfAdplh2xoawFhXtRY0g:1626104125412&ei=PWHsYP7VGNLJmAXbyIK4CA&start=0&sa=N&ved=2ahUKEwi-6Iz27d3xAhXSJKYKHVukAIc4HhDy0wN6BAgBEDk&biw=851&bih=880','아이유')
-  // crawl_ut('https://www.youtube.com/watch?v=dF4uPvUs7RY&ab_channel=MnetOfficial','아이유')
-  // testGGCrawl('https://www.youtube.com/watch?v=dF4uPvUs7RY&ab_channel=MnetOfficial','아이유')
-  testGGCrawl('https://www.youtube.com/watch?v=RSv0K4hQyV8&ab_channel=%EA%B3%BD%ED%8A%9C%EB%B8%8CKWAKTUBE','아이유')
+  for(let i=1;i<10;i++){
+    console.log("start youtube past crawl"+i)
+    getUTUrl_google(i)
+    await timer(24 * 60 * 1000)
+  }
+  startUT_pastCrawl()
+  // console.log("DKDK start past crawl")
+  // testGGCrawl('https://www.youtube.com/watch?v=RSv0K4hQyV8&ab_channel=%EA%B3%BD%ED%8A%9C%EB%B8%8CKWAKTUBE','아이유')
   
   // ggCrawl('https://www.google.com/search?q=intitle:%EC%95%84%EC%9D%B4%EC%9C%A0+site:youtube.com&tbs=qdr:w&sxsrf=ALeKk02KJpLleV9PUh5VDTiJrXbnzGEUJA:1626192643942&ei=A7vtYO-HOe-bmAW5yp2IBw&start=0&sa=N&ved=2ahUKEwivlYPXt-DxAhXvDaYKHTllB3E4FBDy0wN6BAgBEEA&biw=851&bih=937','아이유')
 }
@@ -87,22 +73,27 @@ async function testGGCrawl(url : string,artist : string){
     //   await timer(100)
     //   console.log(page.url() + e)
     // }
+    const lists = $('#content-text')
+    var come : string = ""
+    lists.each(function(index,element){
+      console.log("comment : "+index + $(this).text())
+      come += ("\n"+$(this).text())
+    })
+
     console.log($('#container > h1 > yt-formatted-string > span').text()+"suck?")
     console.log("youtube\n"
-        +$('#name').children()
         +'views : ' + $('#count > ytd-video-view-count-renderer > span.view-count.style-scope.ytd-video-view-count-renderer').text()
         +'commentCount : ' + $('#title > h2 > yt-formatted-string > span:nth-child(2)').text()
         +'likes : ' + $('ytd-toggle-button-renderer > a > yt-formatted-string').text()
         +'writer : ' + $('#container > div > yt-formatted-string > a').text()
         +'created : ' + $('#info-text > #info-strings > yt-formatted-string').text()
         +'content : ' + $('#content > #description > yt-formatted-string').children().text()
+        +'comments : ' + come
         )
     // console.log("comment? "+ $('#author-text > span').text())
         
-    const lists = $('#content-text')
-    lists.each(function(index,element){
-      console.log("comment : "+index + $(this).text())
-    })
+   
+    
     // let next = undefined
     // $('tbody').find('td').each(async function (index, elem){
     //   console.log('im in for')
@@ -201,8 +192,8 @@ async function ut_gg_crawl1() {
         artist = "강승윤"
         break;
     }
-    await timer(15000)
     ggCrawl(getUrl(artist),artist)
+    await timer(250000)
   }
 }
 async function ut_gg_crawl2() {
@@ -243,13 +234,12 @@ async function ut_gg_crawl2() {
         artist = "라비"
         break;
     }
-    await timer(15000)
+    await timer(250000)
     ggCrawl(getUrl(artist),artist)
   }
 }
 async function ut_gg_crawl3() {
   for(var i=1; i<=10; i++){
-  await timer(15000)
     var artist = ""
     switch (i) {
       case 1:
@@ -287,12 +277,12 @@ async function ut_gg_crawl3() {
         break;
         
     }
+    await timer(250000)
     ggCrawl(getUrl(artist),artist)
   }
 }
 async function ut_gg_crawl4() {
   for(var i=1; i<=10; i++){
-    await timer(15000)
     var artist = ""
     switch (i) {
       case 1:
@@ -328,13 +318,12 @@ async function ut_gg_crawl4() {
       default:
         artist = "김윤주"
         break;
-    }
+    }await timer(250000)
     ggCrawl(getUrl(artist),artist)
   }
 }
 async function ut_gg_crawl5() {
   for(var i=1; i<=10; i++){
-    await timer(15000)
     var artist = ""
     switch (i) {
       case 1:
@@ -370,13 +359,12 @@ async function ut_gg_crawl5() {
       default:
         artist = "김윤주"
         break;
-    }
+    }await timer(250000)
     ggCrawl(getUrl(artist),artist)
   }
 }
 async function ut_gg_crawl6() {
   for(var i=1; i<=10; i++){
-    await timer(15000)
     var artist = ""
     switch (i) {
       case 1:
@@ -412,13 +400,12 @@ async function ut_gg_crawl6() {
       default:
         artist = "김윤주"
         break;
-    }
+    }await timer(250000)
     ggCrawl(getUrl(artist),artist)
   }
 }
 async function ut_gg_crawl7() {
   for(var i=1; i<=10; i++){
-    await timer(15000)
     var artist = ""
     switch (i) {
       case 1:
@@ -454,13 +441,12 @@ async function ut_gg_crawl7() {
       default:
         artist = ""
         break;
-    }
+    }await timer(250000)
     ggCrawl(getUrl(artist),artist)
   }
 }
 async function ut_gg_crawl8() {
   for(var i=1; i<=10; i++){
-    await timer(15000)
     var artist = ""
     switch (i) {
       case 1:
@@ -496,13 +482,12 @@ async function ut_gg_crawl8() {
       default:
         artist = ""
         break;
-    }
+    }await timer(250000)
     ggCrawl(getUrl(artist),artist)
   }
 }
 async function ut_gg_crawl9() {
   for(var i=1; i<=8; i++){
-    await timer(15000)
     var artist = ""
     switch (i) {
       case 1:
@@ -532,7 +517,7 @@ async function ut_gg_crawl9() {
       default:
         artist = ""
         break;
-    }
+    }await timer(250000)
     ggCrawl(getUrl(artist),artist)
   }
 }
@@ -585,7 +570,7 @@ async function ggCrawl(url:string, artist : string){
     })
     for(let i=1;i<lists.length;i++){
       if($(lists[i]).attr('href')?.toString().match('youtube.com/watch') && !$(lists[i]).attr('href')?.toString().match('webcache')){
-        await timer(5000)
+        await timer(25000)
         if(i%2==1){
           console.log($(lists[i]).attr('href') + i.toString())
           crawl_ut($(lists[i]).attr('href')!.toString(),artist)
@@ -604,10 +589,6 @@ async function ggCrawl(url:string, artist : string){
 }
 
 async function crawl_ut(url:string, artist : string) {
-  var options ={
-    url : url,
-    // headers: { 'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36' }
-  }
   try{
     const inBrowser = await puppeteer.launch({
       // headless: false,
@@ -634,51 +615,50 @@ async function crawl_ut(url:string, artist : string) {
     if(page.url().match('www.google.com/sorry/index?')){
       console.log("its blocked")
     }
-      var result: { title: string; views: string; commentCount: string; likes : string ;link: string; writer : string ; created : string; artist : string | undefined; content : string | undefined;};
-      console.log("content Parsing ", url)
-      try{
-        const Content = await ContentRepo.findContentAllDataById(url)
-        // console.log("youtube\n"
-        // +'views : ' + $('#count > ytd-video-view-count-renderer > span.view-count.style-scope.ytd-video-view-count-renderer').text()
-        // +'commentCount : ' + $('div.title > h2 > yt-formatted-string > span:nth-child(2)').text()
-        // +'likes : ' + $('ytd-toggle-button-renderer > a > yt-formatted-string').text()
-        // +'writer : ' + $('#container > div > yt-formatted-string > a').text()
-        // +'created : ' + $('#info-text > #info-strings > yt-formatted-string').text()
-        // +'content : ' + $('#content > #description > yt-formatted-string').children().text()
-        // )
-        if (Content){
-          console.log('already crawlled')
-         }else {
-          result={
-            title : $('h1.title.style-scope.ytd-video-primary-info-renderer > yt-formatted-string').text().trim(),
-            views : $('#count > ytd-video-view-count-renderer > span.view-count.style-scope.ytd-video-view-count-renderer').text().split(' ')[1],
-            commentCount : $('div.title > h2 > yt-formatted-string > span:nth-child(2)').text().trim(),
-            likes : $('ytd-toggle-button-renderer > a > yt-formatted-string').text().split(' ')[1],
-            link : url,
-            writer : $('#container > div > yt-formatted-string > a').text().trim(),
-            created : $('#info-text > #info-strings > yt-formatted-string').text().trim(),
-            artist :artist,
-            content : $('#content > #description > yt-formatted-string').children().text().trim()
-            } 
-            const createdContent = await ContentRepo.create({
-              title : result.title,
-              views : result.views,
-              commentCount : result.commentCount,
-              likes : result.likes,
-              link : result.link,
-              writer : result.writer,
-              created : result.created,
-              artist : result.artist,
-              content : result.content,
-              sites : "youtube",
-            } as Content)
-            console.log("DKDK!! create ",createdContent)
-        }
-        await page.close()
-        inBrowser.close()
-      }catch(ere){
-        console.log('comment error',ere)
+    var result: { title: string; views: string; commentCount: string; likes : string ;link: string; writer : string ; created : string; artist : string | undefined; content : string | undefined; };
+    var resComment : string = ""
+    const lists = $('#content-text')
+    lists.each(function(index,element){
+      // console.log("comment : "+index + $(this).text())
+      resComment += ("\n"+$(this).text())
+    })
+    console.log("content Parsing ", url)
+    try{
+      const Content = await ContentRepo.findContentAllDataById(url)
+      if (Content){
+        console.log('already crawlled')
+        }else {
+        result={
+          title : $('h1.title.style-scope.ytd-video-primary-info-renderer > yt-formatted-string').text().trim(),
+          views : $('#count > ytd-video-view-count-renderer > span.view-count.style-scope.ytd-video-view-count-renderer').text().split(' ')[1],
+          commentCount : $('div.title > h2 > yt-formatted-string > span:nth-child(2)').text().trim(),
+          likes : $('ytd-toggle-button-renderer > a > yt-formatted-string').text().split(' ')[1],
+          link : url,
+          writer : $('#container > div > yt-formatted-string > a').text().trim(),
+          created : $('#info-text > #info-strings > yt-formatted-string').text().trim(),
+          artist :artist,
+          content : $('#content > #description > yt-formatted-string').children().text().trim(),
+          } 
+          const createdContent = await ContentRepo.create({
+            title : result.title,
+            views : result.views,
+            commentCount : result.commentCount,
+            likes : result.likes,
+            link : result.link,
+            writer : result.writer,
+            created : result.created,
+            artist : result.artist,
+            content : result.content,
+            comment : resComment,
+            sites : "youtube",
+          } as Content)
+          console.log("DKDK!! create ",createdContent)
       }
+      await page.close()
+      inBrowser.close()
+    }catch(ere){
+      console.log('comment error',ere)
+    }
   }catch(err){
     console.log(err)
   }
