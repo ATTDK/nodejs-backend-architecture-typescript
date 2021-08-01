@@ -38,7 +38,9 @@ export async function startTW_pastCrawl(){
   // +googleurl3+endYr.getMonth() +"/"+ endYr.getDate() +"/"+ endYr.getFullYear(),'김세정')
   // testTWCrawl('https://www.google.com/search?q=%EC%95%84%EC%9D%B4%EC%9C%A0+site:twitter.com&sxsrf=ALeKk007lSF_4b3k2ukkESzpI_2lX87ASw:1627496580598','아이유')
   // testTWCrawl('https://mobile.twitter.com/_iuofficial/status/1375721534233309185','아이유')
-  crawl_tw("https://mobile.twitter.com/_iuofficial/status/1375721534233309185","아이유")
+  // crawl_tw("https://mobile.twitter.com/_iuofficial/status/1375721534233309185","아이유")
+  crawl_tw("https://twitter.com/kr_now/status/1374922549008560131","아이유")
+  
 }
 async function testTWCrawl(url : string,artist : string){
   try{
@@ -591,13 +593,39 @@ async function crawl_tw(url:string, artist : string) {
       height: 768,
     });
     await page.goto(url);
-
+    await timer(3000)
+    // for (let i = 0;i<10;i++){
+    //   await page.keyboard.press('PageDown')
+    //   await timer(100)
+    // }
     const content = await page.content()
     const $ = load(content, {xmlMode : true})
-    
-    $('span').each(function (i,e){
-      console.log($(this).text())
+    var result: { title: string; views: string| undefined; commentCount: string| undefined; likes : string| undefined ;link: string; writer : string | undefined; created : string| undefined; artist : string | undefined; content : string | undefined; comments : string | undefined; };
+    console.log("test"+$('#id_ihjgl85c4i > span').text())
+    $('div > article > div > div').find('div').each(function (i,e){
+        // if($(this).attr('dir')?.toString()=="auto"){
+        if(i==22){
+          console.log("writer : ", $(this).find('span').text())
+        } else if (i==61){
+          console.log("views : ", $(this).find('span').text().slice(0,$(this).find('span').text().length/2))
+        } else if (i==64){
+          console.log("commentCount : ",$(this).find('span').text().slice(0,$(this).find('span').text().length/2))
+        } else if (i==67){
+          console.log("likes : ",$(this).find('span').text().slice(0,$(this).find('span').text().length/2))
+        } else if (i==55){
+          console.log("created : ", $(this).find('span').text().split("··")[0])
+        } else if (i==36){
+          console.log("content : ", $(this).find('span').text())
+        } else {
+          // result.comments = $(this).find('span').text()
+        }
+
+        //   if(i<500){
+        //   console.log($(this).find('span').text()+i)
+        // }
+      
     })
+    
     
   }catch(err){
     console.log(err)
