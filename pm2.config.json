@@ -19,6 +19,10 @@
     {
       "name": "crawling_youtube",
       "script": "npm run crawl_5"
+    },
+    {
+      "name": "crawling_twitter",
+      "script": "npm run crawl_6"
     }
   ]
 }
