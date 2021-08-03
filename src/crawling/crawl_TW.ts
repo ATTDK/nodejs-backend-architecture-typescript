@@ -9,6 +9,7 @@ import ContentRepo from '../database/repository/ContentRepo';
 import Content, { ContentModel } from '../database/model/Content';
 import '../database';
 import { crossOriginResourcePolicy } from 'helmet';
+import { format } from 'morgan';
 
 const router = express.Router();
 const EmptyUrl = ''
@@ -27,20 +28,20 @@ const googleurl3 = ',cd_max:'
 const timer = (ms: number | undefined) => new Promise(res=>setTimeout(res,ms))
 
 export async function startTW_pastCrawl(){
-  // for(let i=1;i<10;i++){
-  //   console.log("start TheQoo gg crawl"+i)
-  //   getTWUrl_google(i)
-  //   await timer(24 * 60 * 1000)
-  // }
-  // startTW_pastCrawl()
+  for(let i=1;i<10;i++){
+    console.log("start Twitter gg crawl"+i)
+    getTWUrl_google(i)
+    await timer(24 * 60 * 1000)
+  }
+  startTW_pastCrawl()
   // testGGCrawl(googleurl1+encodeURIComponent('김세정')
   // +googleurl2+startYr.getMonth() +"/"+ startYr.getDate() +"/"+ startYr.getFullYear()
   // +googleurl3+endYr.getMonth() +"/"+ endYr.getDate() +"/"+ endYr.getFullYear(),'김세정')
   // testTWCrawl('https://www.google.com/search?q=%EC%95%84%EC%9D%B4%EC%9C%A0+site:twitter.com&sxsrf=ALeKk007lSF_4b3k2ukkESzpI_2lX87ASw:1627496580598','아이유')
   // testTWCrawl('https://mobile.twitter.com/_iuofficial/status/1375721534233309185','아이유')
   // crawl_tw("https://mobile.twitter.com/_iuofficial/status/1375721534233309185","아이유")
-  crawl_tw("https://twitter.com/kr_now/status/1374922549008560131","아이유")
-  
+  // crawl_tw("https://twitter.com/kr_now/status/1374922549008560131","아이유")
+  // ggCrawl("https://www.google.com/search?q=%EC%95%84%EC%9D%B4%EC%9C%A0+site%3Atwitter.com&oq=%EC%95%84%EC%9D%B4%EC%9C%A0+&aqs=chrome.0.69i59l2j69i57j69i60j69i61l2j69i65l2.2484j0j9&sourceid=chrome&ie=UTF-8","아이유")
 }
 async function testTWCrawl(url : string,artist : string){
   try{
@@ -523,10 +524,11 @@ async function ggCrawl(url:string, artist : string){
   try{
     console.log("ggCrawl url "+url)
     const inBrowser = await puppeteer.launch({
-        // headless: false,
-        headless: true, //for ec2
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],//for ec2
-        executablePath: '/usr/bin/chromium-browser', // for ec2
+        headless: false,
+        args:['--disable-web-security'],
+        // headless: true, //for ec2
+        // args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-web-security'],//for ec2
+        // executablePath: '/usr/bin/chromium-browser', // for ec2
       })
     const page = await (await inBrowser).newPage();
     await page.setExtraHTTPHeaders({
@@ -551,13 +553,20 @@ async function ggCrawl(url:string, artist : string){
       }
     })
     for(let i=1;i<lists.length;i++){
-      if($(lists[i]).attr('href')?.toString().match('dcinside') && !$(lists[i]).attr('href')?.toString().match('webcache')&& !$(lists[i]).attr('href')?.toString().match('recommend')){
-        await timer(1500)
-        console.log("dkdk"+Date())
-        console.log($(lists[i]).attr('href'))
-        crawl_tw($(lists[i]).attr('href')!.toString(),artist)
+      if($(lists[i]).attr('href')?.toString().match('/status/') && !$(lists[i]).attr('href')?.toString().match('webcache')){
+        await timer(2000)
+        if(i%2==1){
+          console.log($(lists[i]).attr('href') + i.toString())
+          crawl_tw($(lists[i]).attr('href')!.toString(),artist)
+        }
       }
     }
+    // $('a').each(async function (index, elem){
+    //   if($(this).attr('href')?.toString().match('/status/') && !$(this).attr('href')?.toString().match('webcache')){
+    //     await timer(1000)
+    //     crawl_tw($(this).attr('href')!.toString(),artist)
+    //   }
+    // })
     await page.close()
     if(next != undefined){
       console.log("DKDK ::: __ next link : "+ next)
@@ -576,12 +585,11 @@ async function crawl_tw(url:string, artist : string) {
   }
   try{
     const inBrowser = await puppeteer.launch({
-      headless: false,
-      args:['--disable-web-security']
-
-      // headless: true, //for ec2
-      // args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-web-security'],//for ec2
-      // executablePath: '/usr/bin/chromium-browser', // for ec2
+      // headless: false,
+      // args:['--disable-web-security'],
+      headless: true, //for ec2
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-web-security'],//for ec2
+      executablePath: '/usr/bin/chromium-browser', // for ec2
     })
     const page = await (await inBrowser).newPage();
     await page.setExtraHTTPHeaders({
@@ -593,38 +601,50 @@ async function crawl_tw(url:string, artist : string) {
       height: 768,
     });
     await page.goto(url);
-    await timer(3000)
+    await timer(1000)
     // for (let i = 0;i<10;i++){
     //   await page.keyboard.press('PageDown')
     //   await timer(100)
     // }
-    const content = await page.content()
-    const $ = load(content, {xmlMode : true})
-    var result: { title: string; views: string| undefined; commentCount: string| undefined; likes : string| undefined ;link: string; writer : string | undefined; created : string| undefined; artist : string | undefined; content : string | undefined; comments : string | undefined; };
-    console.log("test"+$('#id_ihjgl85c4i > span').text())
-    $('div > article > div > div').find('div').each(function (i,e){
-        // if($(this).attr('dir')?.toString()=="auto"){
-        if(i==22){
-          console.log("writer : ", $(this).find('span').text())
-        } else if (i==61){
-          console.log("views : ", $(this).find('span').text().slice(0,$(this).find('span').text().length/2))
-        } else if (i==64){
-          console.log("commentCount : ",$(this).find('span').text().slice(0,$(this).find('span').text().length/2))
-        } else if (i==67){
-          console.log("likes : ",$(this).find('span').text().slice(0,$(this).find('span').text().length/2))
-        } else if (i==55){
-          console.log("created : ", $(this).find('span').text().split("··")[0])
-        } else if (i==36){
-          console.log("content : ", $(this).find('span').text())
-        } else {
-          // result.comments = $(this).find('span').text()
-        }
-
-        //   if(i<500){
-        //   console.log($(this).find('span').text()+i)
-        // }
-      
+    const pageContent = await page.content()
+    const $ = load(pageContent, {xmlMode : true})
+    // var result: { likes : string| undefined ;link: string; writer : string | undefined; created : string| undefined; artist : string | undefined; content : string | undefined; sites:string };
+    var likes,writer,content,created,sites : string;
+    $('article').each(function (i,e){
+      if(i==0){
+        // console.log(''
+        // +"writer : "+$(this).find('div>div>div>div>div:nth-child(2)>div>div>div>div:nth-child(1)>div>a>div>div:nth-child(1)>div:nth-child(1)>span>span').text()
+        // +"\ncontent : "+$(this).find('div>div>div>div:nth-child(3)>div:nth-child(1)>div>div').text()
+        // +"\ncreated : "+$(this).find('div > div > div > div:nth-child(3) > div:nth-child(3) > div > div:nth-child(1) > a:nth-child(1) > span').text()
+        // +"\nlikes"+$(this).find('div>div>div>div:nth-child(3) > div:nth-child(4) > div>div:nth-child(3) > div>a>div>span>span').text()
+        // )
+        likes = $(this).find('div>div>div>div:nth-child(3) > div:nth-child(4) > div>div:nth-child(3) > div>a>div>span>span').text()
+        writer = $(this).find('div>div>div>div>div:nth-child(2)>div>div>div>div:nth-child(1)>div>a>div>div:nth-child(1)>div:nth-child(1)>span>span').text()
+        content = $(this).find('div>div>div>div:nth-child(3)>div:nth-child(1)>div>div').text()
+        created = $(this).find('div > div > div > div:nth-child(3) > div:nth-child(3) > div > div:nth-child(1) > a:nth-child(1) > span').text()
+      }
     })
+    try{
+      const Content = await ContentRepo.findContentAllDataById(url)
+      if (Content){
+        console.log('already crawlled')
+      } else {
+       
+        const createdContent = await ContentRepo.create({
+          likes : likes,
+          link : url,
+          writer : writer,
+          created : created,
+          artist : artist,
+          content : content,
+          sites : "twitter",
+        } as Content)
+        console.log("DKDK!! create ",createdContent)
+      }
+    }catch{
+
+    }
+    
     
     
   }catch(err){
