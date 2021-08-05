@@ -15,13 +15,13 @@ const baseGoogleUrl = 'https://www.google.com'
 const googleurl1 = 'https://www.google.com/search?q=site:dcinside.com+intitle%3A'
 const googleurl2 = '&tbs=cdr:1,cd_min:'
 const googleurl3 = ',cd_max:'
-const browser = puppeteer.launch({
+// const browser = puppeteer.launch({
   // headless: true,
-  headless: false,
+  // headless: false,
   // args: ['--no-sandbox', '--disable-setuid-sandbox'],//for ec2
   // executablePath: '/usr/bin/chromium-browser', // for ec2
   // ignoreDefaultArgs: ["--enable-automation"],
-});
+// });
 
 const timer = (ms: number | undefined) => new Promise(res=>setTimeout(res,ms))
 

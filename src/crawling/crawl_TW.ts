@@ -524,11 +524,11 @@ async function ggCrawl(url:string, artist : string){
   try{
     console.log("ggCrawl url "+url)
     const inBrowser = await puppeteer.launch({
-        headless: false,
-        args:['--disable-web-security'],
-        // headless: true, //for ec2
-        // args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-web-security'],//for ec2
-        // executablePath: '/usr/bin/chromium-browser', // for ec2
+        // headless: false,
+        // args:['--disable-web-security'],
+        headless: true, //for ec2
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-web-security'],//for ec2
+        executablePath: '/usr/bin/chromium-browser', // for ec2
       })
     const page = await (await inBrowser).newPage();
     await page.setExtraHTTPHeaders({
